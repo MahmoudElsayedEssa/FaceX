@@ -66,7 +66,7 @@ class TFLiteDelegateHelper {
     private fun isGpuDelegateSupported(): Boolean {
         val options = GpuDelegate.Options()
         try {
-            GpuDelegate(options).use { _ ->
+            GpuDelegate(options).use {
                 return true
             }
         } catch (e: UnsupportedOperationException) {
@@ -77,7 +77,7 @@ class TFLiteDelegateHelper {
 
     private fun isNnApiDelegateSupported(): Boolean {
         try {
-            NnApiDelegate().use { _ ->
+            NnApiDelegate().use {
                 return true
             }
         } catch (e: java.lang.UnsupportedOperationException) {

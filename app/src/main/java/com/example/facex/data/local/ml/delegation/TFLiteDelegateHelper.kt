@@ -1,4 +1,4 @@
-package com.example.facex.ml.delegation
+package com.example.facex.data.local.ml.delegation
 
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate

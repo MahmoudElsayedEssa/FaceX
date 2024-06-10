@@ -1,4 +1,4 @@
-package com.example.facex.ml.facerecognition
+package com.example.facex.data.local.ml.facerecognition
 
 import android.graphics.Bitmap
 import org.tensorflow.lite.DataType

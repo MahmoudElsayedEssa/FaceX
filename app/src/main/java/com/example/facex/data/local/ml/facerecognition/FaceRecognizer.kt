@@ -1,7 +1,7 @@
-package com.example.facex.ml.facerecognition
+package com.example.facex.data.local.ml.facerecognition
 
 import android.graphics.Bitmap
-import com.example.facex.ml.TFLiteModelHandler
+import com.example.facex.data.local.ml.TFLiteModelHandler
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.inject.Inject

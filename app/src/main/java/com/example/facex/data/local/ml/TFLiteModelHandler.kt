@@ -1,8 +1,8 @@
-package com.example.facex.ml
+package com.example.facex.data.local.ml
 
 import android.content.Context
-import com.example.facex.ml.delegation.DelegateType
-import com.example.facex.ml.delegation.TFLiteDelegateHelper
+import com.example.facex.data.local.ml.delegation.DelegateType
+import com.example.facex.data.local.ml.delegation.TFLiteDelegateHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil

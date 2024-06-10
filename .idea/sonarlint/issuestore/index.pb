@@ -96,3 +96,9 @@ Gapp/src/main/java/com/example/facex/data/local/ml/TFLiteModelHandler.kt,c\e\ce
 Lapp/src/main/java/com/example/facex/data/local/ml/delegation/DelegateType.kt,d\4\d421dc26b4ffd710f1d57b05c19b86474d6356c4
 ‰
 Yapp/src/main/java/com/example/facex/data/local/ml/facerecognition/FaceNetBitmapHandler.kt,0\a\0a4738b8e2a7328e208c70a60fc3735704ca090a
+|
+Lapp/src/main/java/com/example/facex/domain/usecase/RecognizePersonUseCase.kt,7\8\789959b59f9fa1122d0943b2400fcbc6c8fd2603
+v
+Fapp/src/main/java/com/example/facex/domain/entities/ReconizedPerson.kt,9\7\97540657af8db09527b1bdbb2527da11de07f3bd
+w
+Gapp/src/main/java/com/example/facex/domain/entities/RecognizedPerson.kt,4\6\465566b11739a82ead44c8d7fba39589140926d1

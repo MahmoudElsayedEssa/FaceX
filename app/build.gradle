@@ -115,7 +115,7 @@ dependencies {
     implementation libs.androidx.room.ktx
 
     implementation(libs.face.detection)
-
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     debugImplementation(libs.leakcanary.android)
 
 

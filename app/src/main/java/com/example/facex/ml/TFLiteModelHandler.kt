@@ -1,14 +1,17 @@
-package com.example.facex.ml.modelmanagement
+package com.example.facex.ml
 
 import android.content.Context
 import com.example.facex.ml.delegation.DelegateType
 import com.example.facex.ml.delegation.TFLiteDelegateHelper
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
 import java.io.IOException
+import java.nio.ByteBuffer
 import java.nio.MappedByteBuffer
+import javax.inject.Inject
 
-class TFLiteModelHandler(private val context: Context) {
+class TFLiteModelHandler @Inject constructor(@ApplicationContext private val context: Context) {
     private val delegateHelper = TFLiteDelegateHelper()
     private var interpreter: Interpreter? = null
     private var tfliteModel: MappedByteBuffer? = null
@@ -22,10 +25,10 @@ class TFLiteModelHandler(private val context: Context) {
     private fun initializeInterpreter() {
         val bestDelegate = delegateHelper.selectBestDelegate()
         val options = delegateHelper.createOptions(bestDelegate)
-        interpreter = Interpreter(tfliteModel!!, options)
+        interpreter = tfliteModel?.let { Interpreter(it, options) }
     }
 
-    fun changeDelegate(delegateType: DelegateType?) {
+    fun changeDelegate(delegateType: DelegateType) {
         if (interpreter != null) {
             interpreter!!.close()
         }
@@ -34,10 +37,10 @@ class TFLiteModelHandler(private val context: Context) {
         interpreter = Interpreter(tfliteModel!!, options)
     }
 
-    fun runModel(inputHandler: TFLiteInputHandler, outputHandler: TFLiteOutputHandler) {
+    fun runModel(inputByteBuffer: ByteBuffer, outputByteBuffer: ByteBuffer) {
         interpreter?.run(
-            inputHandler.inputBuffer,
-            outputHandler.outputBuffer
+            inputByteBuffer,
+            outputByteBuffer
         )
     }
 

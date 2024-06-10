@@ -8,7 +8,7 @@ class TFLiteDelegateHelper {
     private var gpuDelegate: GpuDelegate? = null
     private var nnApiDelegate: NnApiDelegate? = null
 
-    fun createOptions(delegateType: DelegateType?): Interpreter.Options {
+    fun createOptions(delegateType: DelegateType): Interpreter.Options {
         val options = Interpreter.Options()
         when (delegateType) {
             DelegateType.GPU -> {
@@ -27,7 +27,9 @@ class TFLiteDelegateHelper {
                 options.addDelegate(nnApiDelegate)
             }
 
-            DelegateType.CPU -> {}
+            DelegateType.CPU -> {
+                //default
+            }
             else -> {}
         }
         return options

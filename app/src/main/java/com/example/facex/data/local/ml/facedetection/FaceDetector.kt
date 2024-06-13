@@ -21,7 +21,7 @@ class FaceDetector @Inject constructor() {
     }
 
 
-    fun detectFacesInImage(bitmap: Bitmap, rotationDegrees: Int = 0): Task<List<Face>> {
+    fun detectFacesInImage(bitmap: Bitmap, rotationDegrees: Int): Task<List<Face>> {
         val inputImage = InputImage.fromBitmap(bitmap, rotationDegrees)
         return detector.process(inputImage)
     }

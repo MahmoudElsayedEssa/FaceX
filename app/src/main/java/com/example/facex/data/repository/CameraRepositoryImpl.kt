@@ -1,11 +1,11 @@
-package com.cheesecake.platex.data.repository
+package com.example.facex.data.repository
 
 import android.graphics.Bitmap
 import android.view.ScaleGestureDetector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.LifecycleOwner
-import com.cheesecake.platex.data.local.camera.CameraService
+import com.example.facex.data.local.camera.CameraService
 import com.example.facex.data.local.camera.ImageAnalyzer
 import com.example.facex.domain.repository.CameraRepository
 import javax.inject.Inject

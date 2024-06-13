@@ -1,16 +1,13 @@
 package com.example.facex.domain.repository
 
 import android.graphics.Bitmap
-import android.graphics.Rect
-import java.nio.ByteBuffer
+import com.example.facex.domain.entities.DetectedFace
 
 interface MLRepository {
     fun detectFacesInImage(
         bitmap: Bitmap,
-        onFaceDetected: (embedding: ByteBuffer, boundingBox: Rect) -> Unit
+        rotationDegrees: Int,
+        onFacesDetected: (detectedFaces: List<DetectedFace>) -> Unit
+
     )
-
-    fun recognizeFaces(bitmap: Bitmap, onRecognizeFace: (embedding: ByteBuffer) -> Unit)
-
-
 }

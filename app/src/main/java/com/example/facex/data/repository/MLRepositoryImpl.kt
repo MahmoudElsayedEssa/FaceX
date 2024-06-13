@@ -1,11 +1,9 @@
-package com.cheesecake.platex.data.repository
+package com.example.facex.data.repository
 
 import android.graphics.Bitmap
-import android.graphics.Rect
 import com.example.facex.data.local.ml.facerecognition.FaceRecognizer
+import com.example.facex.domain.entities.DetectedFace
 import com.example.facex.domain.repository.MLRepository
-import java.nio.ByteBuffer
-
 import javax.inject.Inject
 
 class MLRepositoryImpl @Inject constructor(
@@ -13,13 +11,11 @@ class MLRepositoryImpl @Inject constructor(
 ) : MLRepository {
     override fun detectFacesInImage(
         bitmap: Bitmap,
-        onFaceDetected: (embedding: ByteBuffer, boundingBox: Rect) -> Unit
+        rotationDegrees: Int,
+        onFacesDetected: (detectedFaces: List<DetectedFace>) -> Unit
     ) {
-        faceRecognizer.detectFacesInImage(bitmap, onFaceDetected)
+        faceRecognizer.detectFacesInImage(bitmap, rotationDegrees, onFacesDetected)
     }
 
-    override fun recognizeFaces(bitmap: Bitmap, onRecognizeFace: (embedding: ByteBuffer) -> Unit) {
-        faceRecognizer.recognizeFaces(bitmap, onRecognizeFace)
-    }
 
 }

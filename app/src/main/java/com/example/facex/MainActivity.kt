@@ -13,11 +13,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.facex.ui.screens.camera_face_recognition.RecognitionRoute
 import com.example.facex.ui.theme.FaceXTheme
 import dagger.hilt.android.AndroidEntryPoint
+import org.opencv.android.OpenCVLoader
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initOpenCV()
         enableEdgeToEdge()
         setContent {
             FaceXTheme {
@@ -26,6 +28,14 @@ class MainActivity : ComponentActivity() {
                     RecognitionRoute()
                 }
             }
+        }
+    }
+
+    private fun initOpenCV() {
+        if (OpenCVLoader.initDebug()) {
+            Log.d(TAG, "initOpenCV: OpenCV loaded successfully")
+        } else {
+            Log.d(TAG, "initOpenCV: OpenCV loading failure")
         }
     }
 

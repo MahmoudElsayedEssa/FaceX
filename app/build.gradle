@@ -6,7 +6,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id 'kotlin-kapt'
     id 'com.google.devtools.ksp'
-
+    id 'nebula.lint'
 }
 
 android {
@@ -53,10 +53,11 @@ android {
         }
     }
 }
-
+gradleLint {
+    rules = ['dependency-patch']
+}
 dependencies {
     implementation libs.symbol.processing.api
-
 
     implementation libs.androidx.core.ktx
     implementation libs.androidx.lifecycle.runtime.ktx
@@ -119,6 +120,9 @@ dependencies {
     implementation libs.kotlinx.coroutines.core
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     debugImplementation(libs.leakcanary.android)
+
+    implementation(libs.opencv.contrib)
+
 
 
     testImplementation libs.junit

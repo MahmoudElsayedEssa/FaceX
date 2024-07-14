@@ -5,9 +5,7 @@ import com.example.facex.domain.repository.PersonRepository
 import java.nio.ByteBuffer
 import javax.inject.Inject
 
-class RegisterPersonUseCase @Inject constructor(
-    private val personRepository: PersonRepository
-) {
+class RegisterPersonUseCase @Inject constructor(private val personRepository: PersonRepository) {
     suspend operator fun invoke(
         embedding: ByteBuffer,
         name: String,

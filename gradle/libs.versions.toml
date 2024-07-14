@@ -1,4 +1,5 @@
 [versions]
+accompanistPermissions = "0.31.3-beta"
 agp = "8.4.1"
 cameraCamera2 = "1.4.0-beta01"
 faceDetection = "16.1.6"
@@ -32,6 +33,7 @@ cameraMlkitVision = "1.4.0-beta01"
 
 [libraries]
 
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
 androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCamera2" }
 androidx-camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "cameraCamera2" }

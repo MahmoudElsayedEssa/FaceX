@@ -8,10 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.facex.ui.screens.camera_face_recognition.RecognitionRoute
 import com.example.facex.ui.theme.FaceXTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.MultiplePermissionsState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
 import org.opencv.android.OpenCVLoader
 
@@ -24,8 +27,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             FaceXTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
-                    Log.d(TAG, "onCreate: ")
-                    RecognitionRoute()
+                    MainScreen()
                 }
             }
         }
@@ -38,21 +40,40 @@ class MainActivity : ComponentActivity() {
             Log.d(TAG, "initOpenCV: OpenCV loading failure")
         }
     }
-
     companion object {
         private const val TAG = "MainActivity"
     }
 }
 
+
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    RecognitionRoute()
+fun MainScreen() {
+
+    val cameraPermissionState: MultiplePermissionsState =
+        rememberMultiplePermissionsState(
+            permissions = listOf(
+                android.Manifest.permission.CAMERA
+            )
+        )
+
+    MainContent(
+        hasPermission = cameraPermissionState.allPermissionsGranted,
+        onRequestPermission = cameraPermissionState::launchMultiplePermissionRequest
+    )
+
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    FaceXTheme {
-        Greeting("Android")
+private fun MainContent(
+    hasPermission: Boolean,
+    onRequestPermission: () -> Unit,
+) {
+    if (hasPermission) {
+        RecognitionRoute()
+    } else {
+        LaunchedEffect(key1 = "requestPermission") {
+            onRequestPermission()
+        }
     }
 }

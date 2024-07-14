@@ -1,6 +1,7 @@
-package com.cheesecake.camerax.ui.camera_recognition.components
+package com.example.facex.ui.screens.camera_face_recognition.components
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,20 +31,21 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.facex.R
+import com.example.facex.domain.entities.DetectedFace
+import java.nio.ByteBuffer
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogWithImage(
     onDismissRequest: () -> Unit,
-    onConfirmation: (String) -> Unit,
-    bitmap: Bitmap?,
+    onConfirmation: (name: String, embedding: ByteBuffer) -> Unit,
+    detectedFace: DetectedFace?,
 ) {
 
     var name by remember { mutableStateOf("") }
     var displayedBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(Unit) {
-        displayedBitmap = bitmap
+        displayedBitmap = detectedFace?.bitmap
     }
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -62,7 +63,7 @@ fun DialogWithImage(
             ) {
                 Image(
                     bitmap = displayedBitmap?.asImageBitmap()
-                        ?: ImageBitmap.imageResource(R.drawable.ic_launcher_background),
+                        ?: ImageBitmap.imageResource(R.drawable.smiley),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
@@ -84,7 +85,9 @@ fun DialogWithImage(
                         Text("Dismiss")
                     }
                     TextButton(
-                        onClick = { onConfirmation(name) },
+                        onClick = {
+                            detectedFace?.embedding?.let { onConfirmation(name, it) }
+                        },
                         modifier = Modifier.padding(8.dp),
                     ) {
                         Text("Confirm")

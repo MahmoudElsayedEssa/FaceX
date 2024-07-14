@@ -32,7 +32,7 @@ class CameraService @Inject constructor(@ApplicationContext private val context:
 
     private var cameraSelectorOption = CameraSelector.LENS_FACING_BACK
     private lateinit var cameraProvider: ProcessCameraProvider
-    private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+    private val cameraExecutor: ExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
     private val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
     private lateinit var cameraControl: CameraControl

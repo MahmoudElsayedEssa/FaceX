@@ -123,6 +123,8 @@ dependencies {
 
     implementation(libs.opencv.contrib)
 
+    //accompanist
+    implementation(libs.accompanist.permissions)
 
 
     testImplementation libs.junit

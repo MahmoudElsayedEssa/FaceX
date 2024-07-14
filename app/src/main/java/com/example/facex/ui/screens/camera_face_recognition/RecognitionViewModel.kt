@@ -1,104 +1,96 @@
 package com.example.facex.ui.screens.camera_face_recognition
 
-import android.util.Log
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facex.domain.entities.DetectedFace
-import com.example.facex.domain.entities.Person
 import com.example.facex.domain.entities.RecognizedPerson
-import com.example.facex.domain.usecase.GetPersonsUseCase
+import com.example.facex.domain.usecase.BindCameraUseCase
+import com.example.facex.domain.usecase.RegisterPersonUseCase
 import com.example.facex.domain.usecase.SetCameraAnalyzerUseCase
-import com.example.facex.domain.usecase.StartCameraUseCase
+import com.example.facex.domain.usecase.StopRecognitionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.nio.ByteBuffer
 import javax.inject.Inject
 
 @HiltViewModel
 class RecognitionViewModel @Inject constructor(
-    private val startCamera: StartCameraUseCase,
+    private val bindCamera: BindCameraUseCase,
     private val setCameraAnalyzer: SetCameraAnalyzerUseCase,
-    private val getPersons: GetPersonsUseCase,
+    private val registerPerson: RegisterPersonUseCase,
+    private val stopRecognition: StopRecognitionUseCase
 ) : ViewModel() {
 
-    private val _stateFlow: MutableStateFlow<RecognitionState> =
-        MutableStateFlow(RecognitionState())
-
+    private val _stateFlow = MutableStateFlow(RecognitionState())
     val stateFlow: StateFlow<RecognitionState> = _stateFlow.asStateFlow()
 
-    private val personStateFlow: MutableStateFlow<List<Person>> =
-        MutableStateFlow(emptyList())
-
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            personStateFlow.update { getPersons() }
-        }
-        Log.d(TAG, "init: setCameraAnalyzer")
-        setCameraAnalyzer(
-            persons = personStateFlow.value,
-            onDetectFace = ::onDetectFace,
-            onRecognizedPerson = ::onRecognizedPerson
-        )
-
-        initializeRecognition()
+        initializeCameraAnalyzer()
     }
 
-    private fun initializeRecognition() {
+    private fun initializeCameraAnalyzer() {
         viewModelScope.launch {
-            personStateFlow.collect { persons ->
-                setCameraAnalyzer(
-                    persons = persons,
-                    onDetectFace = ::onDetectFace,
-                    onRecognizedPerson = ::onRecognizedPerson
-                )
-            }
-
-        }
-    }
-
-    /*
-    *  onDetectFace: (List<DetectedFace>) -> Unit,
-            onRecognizedPerson: (List<DetectedFace>, List<RecognizedPerson>?) -> Unit
-    * */
-    private fun onDetectFace(detectedFaces: List<DetectedFace>) {
-        Log.d(TAG, "onDetectFace: rect $detectedFaces")
-        _stateFlow.update {
-            it.copy(
-                detectedFaces = detectedFaces
+            setCameraAnalyzer(
+                onRecognizeFaces = ::onRecognizeFaces
             )
         }
-
     }
 
-    private fun onRecognizedPerson(
-        detectedFaces: List<DetectedFace>,
-        recognizedPersons: List<RecognizedPerson>?
+    private fun onRecognizeFaces(
+        recognizedFaces: Flow<Pair<List<DetectedFace>, List<RecognizedPerson>?>>
     ) {
-        Log.d(
-            TAG,
-            "onRecognizedPerson: detectedFace $detectedFaces, recognizedPerson $recognizedPersons"
-        )
+        viewModelScope.launch {
+            recognizedFaces.collect { (detectedFaces, recognizedPersons) ->
+                onDetectFace(detectedFaces)
+                onRecognizedPerson(recognizedPersons)
+            }
+        }
+    }
+
+    private fun onDetectFace(detectedFaces: List<DetectedFace>) {
         _stateFlow.update {
-            it.copy(
-//                recognizedFaces = detectedFaces
-            )
+            it.copy(detectedFaces = detectedFaces)
+        }
+    }
+
+    private fun onRecognizedPerson(recognizedPersons: List<RecognizedPerson>?) {
+        recognizedPersons?.let {
+            _stateFlow.update { state ->
+                state.copy(recognizedFaces = it)
+            }
+        }
+    }
+
+    fun onRegisterPerson(name: String, embedding: ByteBuffer) {
+        viewModelScope.launch(Dispatchers.IO) {
+            registerPerson(name = name, embedding = embedding)
         }
     }
 
     fun onStartCamera(previewView: PreviewView, lifecycleOwner: LifecycleOwner) {
-        Log.d(TAG, "onStartCamera:")
-        startCamera(previewView, lifecycleOwner)
+        bindCamera(previewView, lifecycleOwner)
+    }
+
+    fun onStopRecognition(){
+        stopRecognition()
+    }
+
+
+
+    override fun onCleared() {
+        super.onCleared()
+        onStopRecognition()
     }
 
     companion object {
         private const val TAG = "RecognitionViewModel"
     }
-
-
 }

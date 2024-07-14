@@ -1,20 +1,29 @@
 package com.example.facex.ui.screens.camera_face_recognition
 
-import android.graphics.Rect
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.example.facex.ui.screens.camera_face_recognition.components.DetectedFacesOverlayView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.example.facex.ui.screens.camera_face_recognition.components.DialogWithImage
+import com.example.facex.ui.screens.camera_face_recognition.components.FacesOverlayView
 
 @Composable
 fun CameraRecognitionScreen(
@@ -22,14 +31,15 @@ fun CameraRecognitionScreen(
     actions: RecognitionActions = RecognitionActions(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-
+    var showDialog by remember { mutableStateOf(false) }
+    val noFacesDetected = state.detectedFaces.isEmpty()
 
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
                 PreviewView(context).apply {
-                    actions.startCamera(this, lifecycleOwner)
+                    actions.onStartCamera(this, lifecycleOwner)
                 }
             }
         )
@@ -37,46 +47,65 @@ fun CameraRecognitionScreen(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
-                DetectedFacesOverlayView(context, null)
+                FacesOverlayView(context, null)
             },
             update = { view ->
-                view.setResults(state.detectedFaces)
+                view.setResults(state.detectedFaces, state.recognizedFaces)
             }
         )
 
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (noFacesDetected) {
+                Text(
+                    text = "No faces detected. Please position your face in front of the camera.",
+                    color = Color.Red,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
 
+            Button(
+                onClick = {
+                    showDialog = true
+                },
+                enabled = !noFacesDetected,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text(text = "Capture Face")
+            }
 
-//        state.detectedFaces.forEach { detectedFace ->
-//            detectedFace.boundingBox?.let { DrawRectangle(rect = it) }
-//        }
+            if (showDialog) {
+                DialogWithImage(
+                    onDismissRequest = {
+                        showDialog = false
+                    },
+                    onConfirmation = { name, embedding ->
+                        actions.onCaptureFace(name, embedding)
+                        showDialog = false
+                    },
+                    detectedFace = state.detectedFaces.firstOrNull()
+                )
+            }
+        }
+    }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                actions.onStopRecognition()
+            }
+        }
 
-        // Draw recognized faces with name and confidence
-//        state.recognizedFaces.forEach { recognizedFace ->
-//            recognizedFace.detectedFace?.let { detectedFace ->
-//                DrawRectangle(rect = detectedFace.boundingBox)
-//                DrawText(
-//                    text = "${recognizedFace.recognizedPerson?.person?.name}" +
-//                            " - Confidence: ${recognizedFace.recognizedPerson?.confidence}",
-//                    rect = detectedFace.boundingBox
-//                )
-//            }
-//        }
+        lifecycleOwner.lifecycle.addObserver(observer)
 
-//        DrawFacesBoundingBoxes(state.recognizedFaces)
-
+        // Cleanup when the effect is disposed
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
-}
-
-
-@Composable
-fun DrawRectangle(rect: Rect, color: Color = Color.Red, strokeWidth: Dp = Dp(4f)) {
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        drawRect(
-            color = color,
-            topLeft = Offset(rect.left.toFloat(), rect.top.toFloat()),
-            size = Size(rect.width().toFloat(), rect.height().toFloat()),
-            style = Stroke(width = strokeWidth.toPx())
-        )
-    }
 }

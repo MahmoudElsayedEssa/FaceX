@@ -30,6 +30,7 @@ class TFLiteDelegateHelper {
             DelegateType.CPU -> {
                 //default
             }
+
             else -> {}
         }
         return options
@@ -62,6 +63,7 @@ class TFLiteDelegateHelper {
         } else {
             DelegateType.CPU
         }
+
     }
 
 

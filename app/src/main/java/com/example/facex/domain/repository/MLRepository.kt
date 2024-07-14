@@ -2,12 +2,10 @@ package com.example.facex.domain.repository
 
 import android.graphics.Bitmap
 import com.example.facex.domain.entities.DetectedFace
+import kotlinx.coroutines.flow.Flow
 
 interface MLRepository {
-    fun detectFacesInImage(
-        bitmap: Bitmap,
-        rotationDegrees: Int,
-        onFacesDetected: (detectedFaces: List<DetectedFace>) -> Unit
+    fun recognizeFaces(bitmap: Bitmap, rotationDegrees: Int): Flow<List<DetectedFace>>
 
-    )
+    fun stopRecognition()
 }

@@ -15,7 +15,7 @@ interface PersonDao {
     suspend fun insert(person: PersonDTO)
 
     @Query("SELECT * FROM persons")
-    fun getAllPersons(): List<PersonDTO>
+    fun getAllPersons(): Flow<List<PersonDTO>>
 
     @Delete
     suspend fun deletePerson(person: PersonDTO)

@@ -1,7 +1,16 @@
 package com.example.facex.data.local.camera
 
+import android.app.Activity
+import android.content.Context.CAMERA_SERVICE
 import android.graphics.Bitmap
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
+import android.os.Build
 import android.util.Log
+import android.util.SparseIntArray
+import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 
@@ -17,13 +26,17 @@ class ImageAnalyzer(private val onAnalyze: (bitmap: Bitmap, rotationDegrees: Int
         initializeBitmapBuffer(imageProxy)
         copyImageToBuffer(imageProxy)
 
-        bitmapBuffer.takeIf { isNotSharpImage(it) }
-            ?.takeIf { isPreviousBitmapInitialized && isSignificantChange(it, previousBitmap) }
-            ?.also {
-                logInferenceTime {
-                    onAnalyze(it, imageProxy.imageInfo.rotationDegrees)
-                }
-            }
+
+        logInferenceTime {
+            onAnalyze(bitmapBuffer, imageProxy.imageInfo.rotationDegrees)
+        }
+
+//        bitmapBuffer.takeIf { isNotSharpImage(it) }
+//            ?.also {
+//                logInferenceTime {
+//                    onAnalyze(bitmapBuffer, imageProxy.imageInfo.rotationDegrees)
+//                }
+//            }
 
         updatePreviousBitmap()
     }
@@ -77,6 +90,7 @@ class ImageAnalyzer(private val onAnalyze: (bitmap: Bitmap, rotationDegrees: Int
         previousBitmap = bitmapBuffer.copy(Bitmap.Config.ARGB_8888, false)
         isPreviousBitmapInitialized = true
     }
+
 
     companion object {
         private const val TAG = "ImageAnalyzer"

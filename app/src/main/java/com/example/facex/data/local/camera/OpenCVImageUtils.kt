@@ -10,7 +10,7 @@ import org.opencv.imgproc.Imgproc
 
 object OpenCVImageUtils {
     private const val THRESHOLD_SIGNIFICANT_CHANGE = 7_000_000.0
-    const val SHARPNESS_THRESHOLD = 150.0
+    const val SHARPNESS_THRESHOLD = 250.0
     private const val TAG = "OpenCVImageUtils"
 
     fun calculateSharpness(bitmap: Bitmap): Double {

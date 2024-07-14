@@ -9,12 +9,11 @@ import androidx.compose.runtime.remember
 @Composable
 fun rememberRecognitionActions(coordinator: RecognitionCoordinator): RecognitionActions {
     return remember(coordinator) {
-        Log.d(
-            "TAG",
-            "rememberRecognitionActions:coordinator$coordinator,  viewModel${coordinator.viewModel} "
-        )
+
         RecognitionActions(
-            startCamera = coordinator.viewModel::onStartCamera,
+            onStartCamera = coordinator.viewModel::onStartCamera,
+            onCaptureFace = coordinator.viewModel::onRegisterPerson,
+            onStopRecognition = coordinator.viewModel::onStopRecognition
 //            navigateToUploadScreen = coordinator::navigateToUploadScreen
         )
     }

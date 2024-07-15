@@ -44,6 +44,13 @@ class TFLiteModelHandler @Inject constructor(@ApplicationContext private val con
         )
     }
 
+    fun runModel(inputByteBuffer: ByteBuffer, outputFloatArray: Array<FloatArray>) {
+        interpreter?.run(
+            inputByteBuffer,
+            outputFloatArray
+        )
+    }
+
     @Throws(IOException::class)
     private fun loadModelFile(modelFileName: String): MappedByteBuffer {
         return FileUtil.loadMappedFile(context, modelFileName)

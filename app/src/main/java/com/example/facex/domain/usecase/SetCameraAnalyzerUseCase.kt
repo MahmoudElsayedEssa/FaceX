@@ -1,41 +1,43 @@
 package com.example.facex.domain.usecase
 
-import com.example.facex.data.local.camera.ImageAnalyzer
+import android.content.Context
+import com.example.facex.data.local.camera.FacesImageAnalyzer
+import com.example.facex.di.DefaultDispatcher
+import com.example.facex.di.MainDispatcher
 import com.example.facex.domain.entities.DetectedFace
 import com.example.facex.domain.entities.RecognizedPerson
+import com.example.facex.domain.logExecutionTime
 import com.example.facex.domain.repository.CameraRepository
-import com.example.facex.domain.repository.PersonRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SetCameraAnalyzerUseCase @Inject constructor(
-    private val cameraRepository: CameraRepository,
+    @ApplicationContext private val context: Context,
+    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     private val recognizeFaces: RecognizeFacesUseCase,
-    private val personRepository: PersonRepository
-
+    private val cameraRepository: CameraRepository,
 ) {
     suspend operator fun invoke(
-        onRecognizeFaces: (Flow<Pair<List<DetectedFace>, List<RecognizedPerson>?>>) -> Unit
+        onRecognizeFaces: (Pair<List<DetectedFace>, List<RecognizedPerson>>) -> Unit
     ) {
-        withContext(Dispatchers.IO) {
-            personRepository.getAllPersons().collect {
-                val analyzer = ImageAnalyzer { bitmap, rotationDegrees ->
-                    val result = recognizeFaces(
-                        bitmap = bitmap,
-                        rotationDegrees = rotationDegrees,
-                        persons = it
-                    )
-                    onRecognizeFaces(result)
+        val facesAnalyzer = FacesImageAnalyzer(context) { bitmap, rotationDegrees ->
+            logExecutionTime("FaceRecognition", "Face recognition") {
+                runBlocking(defaultDispatcher) {
+                    val result = recognizeFaces(bitmap, rotationDegrees)
+                    withContext(mainDispatcher) {
+                        onRecognizeFaces(result) // Adjust as needed
+                    }
                 }
-                cameraRepository.setImageAnalyzer(analyzer)
             }
         }
-    }
 
-    companion object {
-        private const val TAG = "SetCameraAnalyzerUse"
-    }
 
+        withContext(mainDispatcher) {
+            cameraRepository.setImageAnalyzer(facesAnalyzer)
+        }
+    }
 }

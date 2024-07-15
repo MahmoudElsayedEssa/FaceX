@@ -5,6 +5,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facex.domain.entities.DetectedFace
+import com.example.facex.domain.entities.Embedding
 import com.example.facex.domain.entities.RecognizedPerson
 import com.example.facex.domain.usecase.BindCameraUseCase
 import com.example.facex.domain.usecase.RegisterPersonUseCase
@@ -38,22 +39,14 @@ class RecognitionViewModel @Inject constructor(
 
     private fun initializeCameraAnalyzer() {
         viewModelScope.launch {
-            setCameraAnalyzer(
-                onRecognizeFaces = ::onRecognizeFaces
-            )
-        }
-    }
-
-    private fun onRecognizeFaces(
-        recognizedFaces: Flow<Pair<List<DetectedFace>, List<RecognizedPerson>?>>
-    ) {
-        viewModelScope.launch {
-            recognizedFaces.collect { (detectedFaces, recognizedPersons) ->
+            setCameraAnalyzer { (detectedFaces, recognizedPersons) ->
                 onDetectFace(detectedFaces)
                 onRecognizedPerson(recognizedPersons)
             }
         }
     }
+
+
 
     private fun onDetectFace(detectedFaces: List<DetectedFace>) {
         _stateFlow.update {
@@ -69,7 +62,7 @@ class RecognitionViewModel @Inject constructor(
         }
     }
 
-    fun onRegisterPerson(name: String, embedding: ByteBuffer) {
+    fun onRegisterPerson(name: String, embedding: Embedding) {
         viewModelScope.launch(Dispatchers.IO) {
             registerPerson(name = name, embedding = embedding)
         }

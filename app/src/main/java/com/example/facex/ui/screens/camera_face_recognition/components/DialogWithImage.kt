@@ -32,12 +32,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.facex.R
 import com.example.facex.domain.entities.DetectedFace
+import com.example.facex.domain.entities.Embedding
 import java.nio.ByteBuffer
 
 @Composable
 fun DialogWithImage(
     onDismissRequest: () -> Unit,
-    onConfirmation: (name: String, embedding: ByteBuffer) -> Unit,
+    onConfirmation: (name: String, embedding: Embedding) -> Unit,
     detectedFace: DetectedFace?,
 ) {
 

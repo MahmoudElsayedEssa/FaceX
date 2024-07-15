@@ -7,6 +7,7 @@ import com.example.facex.domain.entities.RecognizedPerson
 import com.example.facex.domain.usecase.RecognizeFacesUseCase
 import com.example.facex.domain.usecase.RecognizeFacesUseCase.Companion.CONFIDENCE_THRESHOLD
 import java.nio.ByteBuffer
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 
@@ -35,6 +36,20 @@ fun cosineSimilarity(embeddingA: ByteBuffer, embeddingB: ByteBuffer): Double {
     return dotProduct / (sqrt(normA) * sqrt(normB))
 }
 
+fun cosineSimilarity(vectorA: FloatArray, vectorB: FloatArray): Double {
+    require(vectorA.size == vectorB.size) { "Vectors must have the same dimensions" }
+
+    var dotProduct = 0.0
+    var normA = 0.0
+    var normB = 0.0
+    for (i in vectorA.indices) {
+        dotProduct += vectorA[i] * vectorB[i]
+        normA += vectorA[i].toDouble().pow(2.0)
+        normB += vectorB[i].toDouble().pow(2.0)
+    }
+    return dotProduct / (sqrt(normA) * sqrt(normB))
+}
+
 fun List<Person>.findRecognizedPerson(detectedFace: DetectedFace): RecognizedPerson? {
     return this.mapNotNull { person ->
         cosineSimilarity(detectedFace.embedding, person.embedding).takeIf {
@@ -46,3 +61,18 @@ fun List<Person>.findRecognizedPerson(detectedFace: DetectedFace): RecognizedPer
         }
     }.maxByOrNull { it.confidence }
 }
+
+inline fun logExecutionTime(tag: String, description: String, block: () -> Unit) {
+    val startTime = System.nanoTime()
+    block()
+    val endTime = System.nanoTime()
+    val duration = endTime - startTime
+
+    val message = when {
+        duration < 1_000_000 -> "$description took ${duration / 1000} µs"
+        duration < 1_000_000_000 -> "$description took ${duration / 1_000_000} ms"
+        else -> "$description took ${duration / 1_000_000_000} s"
+    }
+    Log.d(tag, "logExecutionTime: $message")
+}
+

@@ -10,41 +10,9 @@ import org.opencv.imgproc.Imgproc
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-const val FLOAT_SIZE_BYTES = 4
-fun ByteBuffer.toFloatArray(): FloatArray {
-    rewind() // Rewind the buffer to read from the beginning
-    val floatArray = FloatArray(this.remaining() / FLOAT_SIZE_BYTES)
-    for (i in floatArray.indices) {
-        floatArray[i] = this.float
-    }
-    return floatArray
-}
-
-fun FloatArray.toByteBuffer(): ByteBuffer {
-    val byteBuffer =
-        ByteBuffer.allocate(this.size * FLOAT_SIZE_BYTES) // Assuming each float is 4 bytes
-    for (floatValue in this) {
-        byteBuffer.putFloat(floatValue)
-    }
-    byteBuffer.flip() // Prepare the buffer for reading
-    return byteBuffer
-}
-
-
-fun ByteArray.toByteBuffer(): ByteBuffer {
-    return ByteBuffer.wrap(this).order(ByteOrder.nativeOrder())
-}
-
-fun ByteBuffer.toByteArray(): ByteArray {
-    val byteBuffer = this.duplicate().order(ByteOrder.nativeOrder())
-    val byteArray = ByteArray(byteBuffer.remaining())
-    byteBuffer.get(byteArray)
-    return byteArray
-}
-
 fun Bitmap.cropToBoundingBox(
     boundingBox: Rect,
-    rotation: Int
+    rotation: Int = 90
 ): Bitmap? {
     val matrix = Matrix().apply { postRotate(rotation.toFloat()) }
     val rotatedImage = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)

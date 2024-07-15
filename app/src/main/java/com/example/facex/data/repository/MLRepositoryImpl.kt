@@ -1,20 +1,25 @@
 package com.example.facex.data.repository
 
 import android.graphics.Bitmap
-import com.example.facex.data.local.ml.facerecognition.FaceRecognizer
+import com.example.facex.data.local.ml.MyFaceDetector
+import com.example.facex.data.local.ml.facerecognition.MyFaceRecognizer
 import com.example.facex.domain.entities.DetectedFace
 import com.example.facex.domain.repository.MLRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class MLRepositoryImpl @Inject constructor(
-    private val faceRecognizer: FaceRecognizer
+    private val faceRecognizer: MyFaceRecognizer,
+    private val faceDetector: MyFaceDetector,
 ) : MLRepository {
-    override fun recognizeFaces(bitmap: Bitmap, rotationDegrees: Int)
-            : Flow<List<DetectedFace>> = faceRecognizer.detectFacesInImage(bitmap, rotationDegrees)
+    override suspend fun recognizeFaces(bitmap: Bitmap, rotationDegrees: Int)
+            : List<DetectedFace> {
+        val faces = faceDetector.detectFaces(bitmap, rotationDegrees)
+        return faceRecognizer.recognizeFaces(bitmap, rotationDegrees, faces)
+    }
 
     override fun stopRecognition() {
-        faceRecognizer.stop()
+        faceRecognizer.close()
+        faceDetector.close()
     }
 
 

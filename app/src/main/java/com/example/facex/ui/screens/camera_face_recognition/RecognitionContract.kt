@@ -3,6 +3,7 @@ package com.example.facex.ui.screens.camera_face_recognition
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.LifecycleOwner
 import com.example.facex.domain.entities.DetectedFace
+import com.example.facex.domain.entities.Embedding
 import com.example.facex.domain.entities.RecognizedPerson
 import java.nio.ByteBuffer
 
@@ -14,7 +15,7 @@ data class RecognitionState(
 
 data class RecognitionActions(
     val onStartCamera: (previewView: PreviewView, lifecycleOwner: LifecycleOwner) -> Unit = { _, _ -> },
-    val onCaptureFace: (name: String, embedding: ByteBuffer) -> Unit = { _, _ -> },
+    val onCaptureFace: (name: String, embedding: Embedding) -> Unit = { _, _ -> },
     val navigateToUploadScreen: () -> Unit = {},
     val onStopRecognition: () -> Unit = {},
 )

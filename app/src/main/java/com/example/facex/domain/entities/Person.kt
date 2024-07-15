@@ -5,5 +5,5 @@ import java.nio.ByteBuffer
 data class Person(
     val id: Long,
     val name: String,
-    val embedding: ByteBuffer
+    val embedding: Embedding
 )

@@ -14,18 +14,22 @@ class FacesImageAnalyzer(
     private var lastAnalysisTimestamp = 0L
     private val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
     private var bitmapBuffer: Bitmap? = null
+    private var frameSkipCounter = 0
 
     override fun analyze(imageProxy: ImageProxy) {
         val currentBitmap = getBitmapFromImageProxy(imageProxy)
         val currentTime = System.currentTimeMillis()
 
-        if (isBatteryAllow(currentTime)) {
+        if (shouldAnalyze(currentTime, currentBitmap)) {
             onAnalyze(currentBitmap, imageProxy.imageInfo.rotationDegrees)
 
         }
-
+        frameSkipCounter++
         imageProxy.close()
     }
+
+    private fun shouldAnalyze(currentTime: Long, currentBitmap: Bitmap) =
+        isBatteryAllow(currentTime) && isNotSharpImage(currentBitmap)
 
     private fun isNotSharpImage(bitmap: Bitmap): Boolean {
         val sharpness = OpenCVImageUtils.calculateSharpness(bitmap)

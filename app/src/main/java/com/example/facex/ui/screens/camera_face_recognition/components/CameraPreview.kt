@@ -1,22 +1,27 @@
-package com.cheesecake.camerax.ui.camera_recognition.components
+package com.example.facex.ui.screens.camera_face_recognition.components
 
 
+
+import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
 fun CameraPreview(
-    modifier: Modifier = Modifier,
-    onPreviewViewCreated: (PreviewView) -> Unit
+    controller: LifecycleCameraController,
+    modifier: Modifier = Modifier
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
     AndroidView(
-        modifier = modifier,
-        factory = { context ->
-            PreviewView(context).apply {
-                onPreviewViewCreated(this)
+        factory = {
+            PreviewView(it).apply {
+                this.controller = controller
+                controller.bindToLifecycle(lifecycleOwner)
             }
-        }
+        },
+        modifier = modifier
     )
 }

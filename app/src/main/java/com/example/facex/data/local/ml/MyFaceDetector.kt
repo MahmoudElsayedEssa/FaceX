@@ -21,15 +21,15 @@ class MyFaceDetector @Inject constructor(
     private val detector: com.google.mlkit.vision.face.FaceDetector by lazy {
         FaceDetection.getClient(
             FaceDetectorOptions.Builder()
-                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
-                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .setMinFaceSize(2f)
                 .enableTracking()
-                .setMinFaceSize(0.1f) // Adjust minimum face size as needed
                 .build()
         )
     }
 
-    suspend fun detectFaces(bitmap: Bitmap,rotationDegrees:Int): List<Face> =
+    suspend fun detectFaces(bitmap: Bitmap, rotationDegrees: Int): List<Face> =
         withContext(defaultDispatcher) {
             suspendCoroutine { continuation ->
                 val inputImage = InputImage.fromBitmap(bitmap, rotationDegrees)

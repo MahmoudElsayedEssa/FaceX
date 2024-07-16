@@ -1,6 +1,7 @@
 package com.example.facex.data.local.ml
 
 import android.content.Context
+import android.util.Log
 import com.example.facex.data.local.ml.delegation.DelegateType
 import com.example.facex.data.local.ml.delegation.TFLiteDelegateHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,6 +25,7 @@ class TFLiteModelHandler @Inject constructor(@ApplicationContext private val con
 
     private fun initializeInterpreter() {
         val bestDelegate = delegateHelper.selectBestDelegate()
+        Log.d("MAMO", "initializeInterpreter: bestDelegate:$bestDelegate")
         val options = delegateHelper.createOptions(bestDelegate)
         interpreter = tfliteModel?.let { Interpreter(it, options) }
     }

@@ -1,5 +1,6 @@
 package com.example.facex.data.local.ml.delegation
 
+import android.util.Log
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.nnapi.NnApiDelegate
@@ -10,6 +11,7 @@ class TFLiteDelegateHelper {
 
     fun createOptions(delegateType: DelegateType): Interpreter.Options {
         val options = Interpreter.Options()
+        Log.d("TFLiteDelegateHelper", "createOptions:delegateType:$delegateType ")
         when (delegateType) {
             DelegateType.GPU -> {
                 if (gpuDelegate == null) {

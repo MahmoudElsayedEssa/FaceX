@@ -19,7 +19,6 @@ class RecognizeFacesUseCase @Inject constructor(
     private val personRepository: PersonRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-
 ) {
     suspend operator fun invoke(bitmap: Bitmap, rotationDegrees: Int):
             Pair<List<DetectedFace>, List<RecognizedPerson>> = runBlocking(defaultDispatcher) {

@@ -1,4 +1,4 @@
-package com.example.facex.domain.usecase
+package com.example.facex.domain.usecase.camera
 
 import android.content.Context
 import com.example.facex.data.local.camera.FacesImageAnalyzer
@@ -8,6 +8,7 @@ import com.example.facex.domain.entities.DetectedFace
 import com.example.facex.domain.entities.RecognizedPerson
 import com.example.facex.domain.logExecutionTime
 import com.example.facex.domain.repository.CameraRepository
+import com.example.facex.domain.usecase.RecognizeFacesUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.runBlocking

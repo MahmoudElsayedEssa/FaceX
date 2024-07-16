@@ -18,6 +18,7 @@ class FacesImageAnalyzer(
 
     override fun analyze(imageProxy: ImageProxy) {
         val currentBitmap = getBitmapFromImageProxy(imageProxy)
+//        val currentBitmap = imageProxy.toBitmap()
         val currentTime = System.currentTimeMillis()
 
         if (shouldAnalyze(currentTime, currentBitmap)) {

@@ -126,6 +126,10 @@ dependencies {
     //accompanist
     implementation(libs.accompanist.permissions)
 
+    //concurrent
+    implementation(libs.androidx.concurrent.futures)
+    implementation(libs.androidx.concurrent.futures.ktx)
+
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

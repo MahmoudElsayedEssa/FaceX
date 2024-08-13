@@ -5,8 +5,11 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 @Singleton
 class MyFaceDetector @Inject constructor() {
@@ -28,7 +31,6 @@ class MyFaceDetector @Inject constructor() {
                 callback(faces)
             }
             .addOnFailureListener { exception ->
-//                    continuation.resumeWithException(exception)
             }
     }
 

@@ -26,7 +26,7 @@ import kotlin.math.max
 
 @Composable
 fun FacesOverlay(
-    detectedFaces: List<DetectedFace>,
+    detectedFaces: List<DetectedFace?>,
     recognizedPersons: List<RecognizedPerson>,
     cameraSelector: CameraSelector,
     modifier: Modifier = Modifier
@@ -42,20 +42,24 @@ fun FacesOverlay(
 
             detectedFaces.forEach { face ->
                 val adjustedBox =
-                    adjustBoundingBoxForView(
-                        face.boundingBox,
-                        orientation,
-                        imageSize,
-                        viewSize,
-                        cameraSelector = cameraSelector
+                    face?.boundingBox?.let {
+                        adjustBoundingBoxForView(
+                            it,
+                            orientation,
+                            imageSize,
+                            viewSize,
+                            cameraSelector = cameraSelector
+                        )
+                    }
+                if (adjustedBox != null) {
+                    drawRoundRect(
+                        color = Color(ContextCompat.getColor(context, R.color.purple_200)),
+                        topLeft = Offset(adjustedBox.left, adjustedBox.top),
+                        size = Size(adjustedBox.width, adjustedBox.height),
+                        style = Stroke(width = 8f),
+                        cornerRadius = CornerRadius(32f, 32f)
                     )
-                drawRoundRect(
-                    color = Color(ContextCompat.getColor(context, R.color.purple_200)),
-                    topLeft = Offset(adjustedBox.left, adjustedBox.top),
-                    size = Size(adjustedBox.width, adjustedBox.height),
-                    style = Stroke(width = 8f),
-                    cornerRadius = CornerRadius(32f, 32f)
-                )
+                }
             }
 
             recognizedPersons.forEach { person ->

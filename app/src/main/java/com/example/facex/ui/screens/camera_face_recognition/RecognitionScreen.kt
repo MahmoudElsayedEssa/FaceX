@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.facex.ui.screens.camera_face_recognition.components.DialogWithImage
 import com.example.facex.ui.screens.camera_face_recognition.components.FacesImageAnalyzer
 
@@ -30,14 +31,14 @@ fun CameraRecognitionScreen(
     state: RecognitionState = RecognitionState(),
     actions: RecognitionActions = RecognitionActions(),
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
     val applicationContext = LocalContext.current.applicationContext
     var showDialog by remember { mutableStateOf(false) }
     val noFacesDetected = state.detectedFaces.isEmpty()
+    val lifeTimeScope = LocalLifecycleOwner.current.lifecycleScope
 
     var cameraSelector by remember { mutableStateOf(DEFAULT_FRONT_CAMERA) }
     val analyzer = remember {
-        FacesImageAnalyzer(applicationContext, actions.onAnalysis)
+        FacesImageAnalyzer(lifeTimeScope, actions.onAnalysis)
     }
 
     val controller = remember {
@@ -93,18 +94,5 @@ fun CameraRecognitionScreen(
             )
         }
     }
-//    DisposableEffect(lifecycleOwner) {
-//        val observer = LifecycleEventObserver { _, event ->
-//            if (event == Lifecycle.Event.ON_PAUSE) {
-//                // actions.onStopRecognition()
-//            }
-//        }
-//
-//        lifecycleOwner.lifecycle.addObserver(observer)
-//
-//        // Cleanup when the effect is disposed
-//        onDispose {
-//            lifecycleOwner.lifecycle.removeObserver(observer)
-//        }
-//    }
+
 }

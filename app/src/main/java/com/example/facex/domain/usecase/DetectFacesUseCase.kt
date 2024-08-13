@@ -17,19 +17,21 @@ import kotlin.system.measureTimeMillis
 class DetectFacesUseCase @Inject constructor(
     private val mlRepository: MLRepository,
 ) {
-    operator fun invoke(bitmap: Bitmap, rotationDegrees: Int): Flow<List<DetectedFace>> =
+    operator fun invoke(bitmap: Bitmap, rotationDegrees: Int): Flow<List<DetectedFace?>> =
         callbackFlow {
             val timeTaken = measureTimeMillis {
                 mlRepository.detectFaces(bitmap, rotationDegrees) { faces ->
                     val detectedFaces = faces.map { face ->
                         val croppedBitmap =
                             bitmap.cropToBoundingBox(face.boundingBox, rotationDegrees)
-                                .toGrayScale()
-                        DetectedFace(
-                            boundingBox = face.boundingBox,
-                            trackedId = face.trackingId,
-                            bitmap = croppedBitmap
-                        )
+                                ?.toGrayScale()
+                        croppedBitmap?.let {
+                            DetectedFace(
+                                boundingBox = face.boundingBox,
+                                trackedId = face.trackingId,
+                                bitmap = it
+                            )
+                        }
                     }
                     trySend(detectedFaces)
                     close()

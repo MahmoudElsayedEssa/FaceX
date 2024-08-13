@@ -16,8 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.facex.ui.screens.camera_face_recognition.RecognitionActions
 import com.example.facex.ui.screens.camera_face_recognition.RecognitionState
 import com.example.facex.ui.screens.camera_face_recognition.components.CameraPreview
@@ -31,9 +33,10 @@ fun ImageAnalysisPreview(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val lifeTimeScope = LocalLifecycleOwner.current.lifecycleScope
     var cameraSelector by remember { mutableStateOf(DEFAULT_FRONT_CAMERA) }
     val analyzer = remember {
-        FacesImageAnalyzer(context, actions.onAnalysis)
+        FacesImageAnalyzer(lifeTimeScope, actions.onAnalysis)
     }
 
     val controller = remember {

@@ -7,7 +7,7 @@ import com.example.facex.domain.entities.RecognizedPerson
 
 data class RecognitionState(
     val recognizedFaces: List<RecognizedPerson> = emptyList(),
-    val detectedFaces: List<DetectedFace> = emptyList(),
+    val detectedFaces: List<DetectedFace?> = emptyList(),
 )
 
 

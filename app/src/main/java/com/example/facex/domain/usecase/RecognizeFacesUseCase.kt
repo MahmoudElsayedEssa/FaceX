@@ -26,7 +26,7 @@ class RecognizeFacesUseCase @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
     suspend operator fun invoke(
-        detectedFaces: List<DetectedFace>
+        detectedFaces: List<DetectedFace?>
     ): List<RecognizedPerson> = withContext(defaultDispatcher) {
         val persons = withContext(ioDispatcher) { personRepository.getAllPersons().first() }
         val recognizedPersons = mutableListOf<RecognizedPerson>()
@@ -34,6 +34,7 @@ class RecognizeFacesUseCase @Inject constructor(
             recognizedPersons.addAll(coroutineScope {
                 detectedFaces.map { face ->
                     async {
+                        if (face == null) return@async null
                         val embedding =
                             mlRepository.getFaceEmbedding(face.bitmap, face.boundingBox)
                         persons.findRecognizedPerson(face, embedding)

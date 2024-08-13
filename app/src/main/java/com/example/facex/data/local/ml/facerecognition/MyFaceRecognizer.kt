@@ -3,6 +3,8 @@ package com.example.facex.data.local.ml.facerecognition
 import android.graphics.Bitmap
 import com.example.facex.data.local.ml.TFLiteModelHandler
 import com.example.facex.domain.entities.Embedding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.inject.Inject
@@ -15,15 +17,13 @@ class MyFaceRecognizer @Inject constructor(
     init {
         tfliteModelHandler.loadModel(MODEL_NAME)
     }
-
-
-    fun calculateEmbeddingFloatArray(faceBitmap: Bitmap): Embedding {
-        val byteBuffer = FaceNetBitmapHandler.convertBitmapToByteBuffer(faceBitmap)
-        val faceOutputArray = Array(1) { FloatArray(EMBEDDING_SIZE) }
-        tfliteModelHandler.runModel(byteBuffer, faceOutputArray)
-        return faceOutputArray[0]
-    }
-
+    suspend fun calculateEmbeddingFloatArray(faceBitmap: Bitmap): Embedding =
+        withContext(Dispatchers.Default) {
+            val byteBuffer = FaceNetBitmapHandler.convertBitmapToByteBuffer(faceBitmap)
+            val faceOutputArray = Array(1) { FloatArray(EMBEDDING_SIZE) }
+            tfliteModelHandler.runModel(byteBuffer, faceOutputArray)
+            faceOutputArray[0]
+        }
     private fun calculateEmbeddingByteBuffer(imageBitmap: Bitmap): ByteBuffer {
         val byteBuffer = FaceNetBitmapHandler.convertBitmapToTensorImage(imageBitmap)
         val embeddingsByteBuffer =

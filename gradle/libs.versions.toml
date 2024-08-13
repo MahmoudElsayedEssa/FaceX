@@ -1,23 +1,23 @@
 [versions]
 accompanistPermissions = "0.31.3-beta"
 agp = "8.4.1"
-cameraCamera2 = "1.4.0-beta01"
+cameraCamera2 = "1.4.0-rc01"
 concurrentFutures = "1.2.0"
-faceDetection = "16.1.6"
+faceDetection = "16.1.7"
 gradle = "8.1.4"
 hiltAndroid = "2.51.1"
 hiltAndroidGradlePlugin = "2.48"
 hiltNavigationFragment = "1.2.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
 kotlinGradlePlugin = "2.0.0"
 kotlinxCoroutinesCore = "1.8.1"
 leakcanaryAndroid = "2.14"
-lifecycleRuntimeKtx = "2.8.1"
-activityCompose = "1.9.0"
-composeBom = "2024.05.00"
+lifecycleRuntimeKtx = "2.8.4"
+activityCompose = "1.9.1"
+composeBom = "2024.06.00"
 hilt = "2.44"
 navigationCompose = "2.7.7"
 opencvContrib = "4.5.3.0"
@@ -26,10 +26,11 @@ roomCompiler = "2.6.1"
 symbolProcessingApi = "2.0.0-1.0.22"
 tensorflowLite = "+"
 tensorflowLitennapi = "2.9.0"
-workRuntimeKtx = "2.9.0"
+workRuntimeKtx = "2.9.1"
 kotlin = "2.0.0-RC2"
 compose-plugin = "1.6.11"
-cameraMlkitVision = "1.4.0-beta01"
+cameraMlkitVision = "1.4.0-rc01"
+runtimeLivedata = "1.6.8"
 
 
 [libraries]
@@ -95,6 +96,7 @@ tensorflow-lite-select-tf-ops = { module = "org.tensorflow:tensorflow-lite-selec
 tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLite" }
 tensorflow-lite-task-vision = { module = "org.tensorflow:tensorflow-lite-task-vision", version.ref = "tensorflowLite" }
 androidx-camera-mlkit-vision = { group = "androidx.camera", name = "camera-mlkit-vision", version.ref = "cameraMlkitVision" }
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

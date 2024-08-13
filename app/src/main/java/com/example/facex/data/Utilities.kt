@@ -13,7 +13,7 @@ import java.nio.ByteOrder
 fun Bitmap.cropToBoundingBox(
     boundingBox: Rect,
     rotation: Int = 90
-): Bitmap? {
+): Bitmap {
     val matrix = Matrix().apply { postRotate(rotation.toFloat()) }
     val rotatedImage = Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     val validBoundingBox = Rect(
@@ -35,7 +35,7 @@ fun Bitmap.cropToBoundingBox(
             cropHeight
         )
     } catch (e: IllegalArgumentException) {
-        null
+        this
     } finally {
         if (rotation != 0) {
             rotatedImage.recycle()

@@ -87,7 +87,7 @@ fun DialogWithImage(
                     }
                     TextButton(
                         onClick = {
-                            detectedFace?.embedding?.let { onConfirmation(name, it) }
+//                            detectedFace?.embedding?.let { onConfirmation(name, it) }
                         },
                         modifier = Modifier.padding(8.dp),
                     ) {

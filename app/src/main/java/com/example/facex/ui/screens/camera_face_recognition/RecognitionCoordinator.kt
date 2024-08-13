@@ -8,16 +8,12 @@ import androidx.navigation.NavController
 
 class RecognitionCoordinator(
     val viewModel: RecognitionViewModel,
-//    val navController: NavController,
 ) {
     val screenStateFlow = viewModel.stateFlow
-//    fun navigateToUploadScreen() = navController.navigate(Screen.UploadImageRoute.route)
-
 }
 
 @Composable
 fun rememberRecognitionCoordinator(): RecognitionCoordinator {
-//    val navBackStackEntry = navController.currentBackStackEntry
     val viewModel: RecognitionViewModel = hiltViewModel()
     return remember(viewModel) {
         RecognitionCoordinator(viewModel = viewModel)

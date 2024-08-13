@@ -1,11 +1,13 @@
 package com.example.facex.domain
 
+import android.media.FaceDetector.Face.CONFIDENCE_THRESHOLD
 import android.util.Log
 import com.example.facex.domain.entities.DetectedFace
+import com.example.facex.domain.entities.Embedding
 import com.example.facex.domain.entities.Person
 import com.example.facex.domain.entities.RecognizedPerson
-import com.example.facex.domain.usecase.RecognizeFacesUseCase
-import com.example.facex.domain.usecase.RecognizeFacesUseCase.Companion.CONFIDENCE_THRESHOLD
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -50,17 +52,22 @@ fun cosineSimilarity(vectorA: FloatArray, vectorB: FloatArray): Double {
     return dotProduct / (sqrt(normA) * sqrt(normB))
 }
 
-fun List<Person>.findRecognizedPerson(detectedFace: DetectedFace): RecognizedPerson? {
-    return this.mapNotNull { person ->
-        cosineSimilarity(detectedFace.embedding, person.embedding).takeIf {
-            it >= CONFIDENCE_THRESHOLD
-        }?.let { confidence ->
-            RecognizedPerson(person, confidence, detectedFace).also {
-                Log.d("findRecognizedPerson", "findRecognizedPerson: confidence: $confidence")
-            }
-        }
-    }.maxByOrNull { it.confidence }
-}
+suspend fun List<Person>.findRecognizedPerson(detectedFace: DetectedFace,embedding:Embedding): RecognizedPerson? =
+    withContext(
+        Dispatchers.Default
+    ) {
+         this@findRecognizedPerson.mapNotNull { person ->
+             embedding.let {
+                 cosineSimilarity(it, person.embedding).takeIf {
+                     it >= CONFIDENCE_THRESHOLD
+                 }?.let { confidence ->
+                     RecognizedPerson(person, confidence, detectedFace).also {
+                         Log.d("findRecognizedPerson", "findRecognizedPerson: confidence: $confidence")
+                     }
+                 }
+             }
+        }.maxByOrNull { it.confidence }
+    }
 
 inline fun logExecutionTime(tag: String, description: String, block: () -> Unit) {
     val startTime = System.nanoTime()

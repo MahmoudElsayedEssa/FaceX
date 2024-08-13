@@ -136,7 +136,7 @@ class FacesOverlayView(context: Context?, attrs: AttributeSet?) : View(context, 
 
     companion object {
         private const val BOUNDING_RECT_TEXT_PADDING = 8
-        private const val IMAGE_WIDTH = 1280f
-        private const val IMAGE_HEIGHT = 720f
+        private const val IMAGE_WIDTH = 640f
+        private const val IMAGE_HEIGHT = 480f
     }
 }

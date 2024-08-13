@@ -10,23 +10,15 @@ fun rememberRecognitionActions(coordinator: RecognitionCoordinator): Recognition
     return remember(coordinator) {
 
         RecognitionActions(
-            startCamera = coordinator.viewModel::startCamera,
             onCaptureFace = coordinator.viewModel::onRegisterPerson,
             onStopRecognition = coordinator.viewModel::onStopRecognition,
-//            onTapToFocus = coordinator.viewModel::onHandleTapToFocus,
-            switchCamera = coordinator.viewModel::onSwitchCamera,
-            onLinearZoom = coordinator.viewModel::onLinearZoom,
-            onZoomRatio = coordinator.viewModel::onZoomRatio,
-            getRatioZoom = coordinator.viewModel::onZoomRatio,
-            getLinearZoom = coordinator.viewModel::getLinearZoom,
-//            navigateToUploadScreen = coordinator::navigateToUploadScreen
+            onAnalysis = coordinator.viewModel::onAnalysis,
         )
     }
 }
 
 @Composable
 fun RecognitionRoute(
-//    navController: NavController,
     coordinator: RecognitionCoordinator = rememberRecognitionCoordinator(),
 ) {
     val uiState by coordinator.screenStateFlow.collectAsState(RecognitionState())

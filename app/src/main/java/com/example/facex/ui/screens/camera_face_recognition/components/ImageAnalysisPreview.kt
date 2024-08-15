@@ -1,3 +1,4 @@
+import android.util.Size
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
 import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
 import androidx.camera.view.CameraController.IMAGE_ANALYSIS
@@ -20,9 +21,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.example.facex.ui.components.CameraPreview
 import com.example.facex.ui.screens.camera_face_recognition.RecognitionActions
 import com.example.facex.ui.screens.camera_face_recognition.RecognitionState
-import com.example.facex.ui.screens.camera_face_recognition.components.CameraPreview
 import com.example.facex.ui.screens.camera_face_recognition.components.FacesImageAnalyzer
 import com.example.facex.ui.screens.camera_face_recognition.components.FacesOverlay
 
@@ -38,6 +39,7 @@ fun ImageAnalysisPreview(
     val analyzer = remember {
         FacesImageAnalyzer(lifeTimeScope, actions.onAnalysis)
     }
+    var cameraPreviewSize by remember { mutableStateOf(Size(640,480 )) } // State to hold preview size
 
     val controller = remember {
         LifecycleCameraController(context).apply {
@@ -56,6 +58,9 @@ fun ImageAnalysisPreview(
     ) {
         CameraPreview(
             controller = controller,
+            onPreviewSizeChanged = { size ->
+                cameraPreviewSize = size
+            },
             modifier = Modifier
                 .fillMaxSize()
         )
@@ -78,8 +83,8 @@ fun ImageAnalysisPreview(
         }
 
         FacesOverlay(
-            state.detectedFaces,
-            state.recognizedFaces,
+            state.trackedFaces.values.toList(),
+            cameraPreviewSize = cameraPreviewSize,
             cameraSelector = cameraSelector
         )
 

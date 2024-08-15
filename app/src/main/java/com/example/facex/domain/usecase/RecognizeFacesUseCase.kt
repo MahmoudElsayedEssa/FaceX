@@ -14,8 +14,10 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
 @Singleton
@@ -28,15 +30,17 @@ class RecognizeFacesUseCase @Inject constructor(
     suspend operator fun invoke(
         detectedFaces: List<DetectedFace?>
     ): List<RecognizedPerson> = withContext(defaultDispatcher) {
+        if (detectedFaces.isEmpty()) return@withContext emptyList()
         val persons = withContext(ioDispatcher) { personRepository.getAllPersons().first() }
         val recognizedPersons = mutableListOf<RecognizedPerson>()
         val timeTaken = measureTimeMillis {
             recognizedPersons.addAll(coroutineScope {
                 detectedFaces.map { face ->
+                    yield()
                     async {
                         if (face == null) return@async null
                         val embedding =
-                            mlRepository.getFaceEmbedding(face.bitmap, face.boundingBox)
+                            mlRepository.getFaceEmbedding(face.bitmap)
                         persons.findRecognizedPerson(face, embedding)
                     }
                 }.awaitAll().filterNotNull()

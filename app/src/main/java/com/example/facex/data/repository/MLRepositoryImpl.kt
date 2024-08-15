@@ -22,7 +22,7 @@ class MLRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getFaceEmbedding(faceBitmap: Bitmap, boundingBox: Rect): Embedding {
+    override suspend fun getFaceEmbedding(faceBitmap: Bitmap): Embedding {
         return faceRecognizer.calculateEmbeddingFloatArray(faceBitmap)
     }
 

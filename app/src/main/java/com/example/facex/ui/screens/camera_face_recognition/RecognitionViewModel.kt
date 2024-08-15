@@ -4,15 +4,16 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.facex.domain.entities.Embedding
+import com.example.facex.domain.entities.DetectedFace
 import com.example.facex.domain.entities.RecognizedPerson
 import com.example.facex.domain.usecase.DetectFacesUseCase
+import com.example.facex.domain.usecase.GetFaceEmbeddingUseCase
 import com.example.facex.domain.usecase.RecognizeFacesUseCase
 import com.example.facex.domain.usecase.RegisterPersonUseCase
 import com.example.facex.domain.usecase.StopRecognitionUseCase
+import com.example.facex.ui.FrameData
+import com.example.facex.ui.TrackedFace
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -20,11 +21,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -34,6 +34,7 @@ class RecognitionViewModel @Inject constructor(
     private val stopRecognition: StopRecognitionUseCase,
     private val detectFacesUseCase: DetectFacesUseCase,
     private val recognizeFacesUseCase: RecognizeFacesUseCase,
+    private val getFaceEmbedding: GetFaceEmbeddingUseCase,
 ) : ViewModel() {
 
     private val _stateFlow = MutableStateFlow(RecognitionState())
@@ -41,50 +42,82 @@ class RecognitionViewModel @Inject constructor(
 
     private var analysisJob: Job? = null
 
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun onAnalysis(bitmap: Bitmap, rotationDegrees: Int) {
+    fun onAnalysis(frameData: FrameData) {
         analysisJob = viewModelScope.launch {
-            try {
-                var recognitionDeffer: Deferred<List<RecognizedPerson>>? = null
-                detectFacesUseCase(bitmap, rotationDegrees)
-                    .onEach { detectedFaces ->
-                        _stateFlow.update { it.copy(detectedFaces = detectedFaces) }
-                        if (detectedFaces.isEmpty()) {
-                            _stateFlow.update { it.copy(recognizedFaces = emptyList()) }
-                            recognitionDeffer?.cancel()
-                            throw CancellationException("No faces detected")
+            withTimeoutOrNull(1000) {
+                try {
+                    detectFacesUseCase(frameData)
+                        .flatMapLatest { detectedFaces ->
+                            updateDetectedFaces(detectedFaces)
+                            flowOf(recognizeFacesUseCase(detectedFaces))
+                        }.collect { recognizedPersons ->
+                            updateRecognizedFaces(recognizedPersons)
                         }
-                    }
-                    .flatMapLatest { detectedFaces ->
-                        flow {
-                            yield()
-                            recognitionDeffer = async { recognizeFacesUseCase(detectedFaces) }
-                            emit(recognitionDeffer)
-                        }
-                    }
-                    .collect { recognizedPersons ->
-                        _stateFlow.update {
-                            recognizedPersons?.await()
-                                ?.let { it1 -> it.copy(recognizedFaces = it1) }!!
-                        }
-                    }
-            } catch (e: CancellationException) {
-                // Log if needed, but don't rethrow as this is an expected cancellation
-                Log.d(TAG, "Face analysis cancelled: ${e.message}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error during face analysis", e)
-                _stateFlow.update {
-                    it.copy(
-                        detectedFaces = emptyList(),
-                        recognizedFaces = emptyList()
-                    )
+                } catch (e: Exception) {
+                    handleException(e)
                 }
+            } ?: handleTimeout()
+        }
+    }
+
+    private fun updateDetectedFaces(detectedFaces: List<DetectedFace?>) {
+        _stateFlow.update { currentState ->
+            val newTrackedFaces = detectedFaces.filterNotNull().associate { face ->
+                val id = face.trackedId ?: face.hashCode()
+                id to TrackedFace(
+                    id = id,
+                    boundingBox = face.boundingBox,
+                    bitmap = face.bitmap
+                )
+            }
+            currentState.copy(trackedFaces = newTrackedFaces)
+        }
+    }
+
+    private fun updateRecognizedFaces(recognizedPersons: List<RecognizedPerson>) {
+        _stateFlow.update { currentState ->
+            val updatedTrackedFaces = currentState.trackedFaces.toMutableMap()
+            recognizedPersons.forEach { recognizedPerson ->
+                val id = recognizedPerson.detectedFace.trackedId
+                    ?: recognizedPerson.detectedFace.hashCode()
+                updatedTrackedFaces[id] =
+                    updatedTrackedFaces[id]?.copy(recognizedPerson = recognizedPerson)
+                        ?: TrackedFace(
+                            id = id,
+                            boundingBox = recognizedPerson.detectedFace.boundingBox,
+                            bitmap = recognizedPerson.detectedFace.bitmap,
+                            recognizedPerson = recognizedPerson
+                        )
+            }
+            currentState.copy(trackedFaces = updatedTrackedFaces)
+        }
+    }
+
+    private fun handleException(e: Exception) {
+        when (e) {
+            is CancellationException -> Log.d(TAG, "Face analysis cancelled: ${e.message}")
+            else -> {
+                Log.e(TAG, "Error during face analysis", e)
+                clearState()
             }
         }
     }
 
-    fun onRegisterPerson(name: String, embedding: Embedding) {
-        viewModelScope.launch(Dispatchers.IO) {
+    private fun handleTimeout() {
+        Log.w(TAG, "Frame processing timed out")
+        clearState()
+    }
+
+    private fun clearState() {
+        _stateFlow.update { it.copy(trackedFaces = emptyMap()) }
+    }
+
+
+    fun onRegisterPerson(name: String, faceBitmap: Bitmap) {
+        viewModelScope.launch {
+            val embedding = async { getFaceEmbedding(faceBitmap) }.await()
             registerPerson(name = name, embedding = embedding)
         }
     }

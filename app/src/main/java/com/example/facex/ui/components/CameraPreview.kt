@@ -1,13 +1,13 @@
-package com.example.facex.ui.screens.camera_face_recognition.components
+package com.example.facex.ui.components
 
 
-import android.view.ViewGroup
+import android.util.Size
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.Preview
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.camera.view.TransformExperimental
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,51 +28,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
 fun CameraPreview(
-    preview: Preview,
-    onTapToFocus: (Float, Float) -> Unit,
-    onZoomRatio: (Float) -> Unit,
-    currentZoomRatio: Float
-) {
-    var lastZoomRatio by remember { mutableFloatStateOf(currentZoomRatio) }
-
-    AndroidView(
-        factory = { context ->
-            PreviewView(context).apply {
-                this.scaleType = PreviewView.ScaleType.FILL_CENTER
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-            }.also { previewView ->
-                preview.setSurfaceProvider(previewView.surfaceProvider)
-            }
-        },
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTapGestures { offset ->
-                    onTapToFocus(offset.x, offset.y)
-                }
-            }
-            .pointerInput(Unit) {
-                detectTransformGestures { _, _, zoom, _ ->
-                    val newZoomRatio = lastZoomRatio * zoom
-
-                    if (newZoomRatio != lastZoomRatio && newZoomRatio > 1f) {
-                        lastZoomRatio = newZoomRatio
-                        onZoomRatio(newZoomRatio)
-                    }
-                }
-            }
-    )
-}
-
-
-@Composable
-fun CameraPreview(
     controller: LifecycleCameraController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onPreviewSizeChanged: (Size) -> Unit // Callback to notify size change
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val zoomState = controller.zoomState.observeAsState()
@@ -87,6 +45,12 @@ fun CameraPreview(
                     PreviewView(context).apply {
                         this.controller = controller
                         controller.bindToLifecycle(lifecycleOwner)
+
+                        // Set a surfaceProvider to get the preview size
+                        Preview.SurfaceProvider { request ->
+                            val previewSize = request.resolution
+                            onPreviewSizeChanged(previewSize)
+                        }
                     }
                 },
                 modifier = Modifier

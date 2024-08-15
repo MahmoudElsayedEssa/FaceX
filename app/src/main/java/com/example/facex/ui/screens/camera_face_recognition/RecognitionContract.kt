@@ -4,16 +4,20 @@ import android.graphics.Bitmap
 import com.example.facex.domain.entities.DetectedFace
 import com.example.facex.domain.entities.Embedding
 import com.example.facex.domain.entities.RecognizedPerson
+import com.example.facex.ui.FrameData
+import com.example.facex.ui.TrackedFace
 
 data class RecognitionState(
     val recognizedFaces: List<RecognizedPerson> = emptyList(),
     val detectedFaces: List<DetectedFace?> = emptyList(),
+    val trackedFaces: Map<Int, TrackedFace> = emptyMap()
+    ,
 )
 
 
 data class RecognitionActions(
     val navigateToUploadScreen: () -> Unit = {},
-    val onCaptureFace: (name: String, embedding: Embedding) -> Unit = { _, _ -> },
+    val onCaptureFace: (name: String,faceBitmap: Bitmap) -> Unit = {_,_->},
     val onStopRecognition: () -> Unit = {},
-    val onAnalysis: (Bitmap, Int) -> Unit = { _, _ -> }
+    val onAnalysis: (FrameData) -> Unit = { }
 )

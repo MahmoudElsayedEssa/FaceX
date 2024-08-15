@@ -38,15 +38,15 @@ import java.nio.ByteBuffer
 @Composable
 fun DialogWithImage(
     onDismissRequest: () -> Unit,
-    onConfirmation: (name: String, embedding: Embedding) -> Unit,
-    detectedFace: DetectedFace?,
+    onConfirmation: (name: String) -> Unit,
+    detectedFaceBitmap: Bitmap,
 ) {
 
     var name by remember { mutableStateOf("") }
     var displayedBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(Unit) {
-        displayedBitmap = detectedFace?.bitmap
+        displayedBitmap = detectedFaceBitmap
     }
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -87,7 +87,7 @@ fun DialogWithImage(
                     }
                     TextButton(
                         onClick = {
-//                            detectedFace?.embedding?.let { onConfirmation(name, it) }
+                            onConfirmation(name)
                         },
                         modifier = Modifier.padding(8.dp),
                     ) {

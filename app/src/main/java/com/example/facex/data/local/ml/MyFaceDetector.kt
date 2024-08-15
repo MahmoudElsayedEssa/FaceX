@@ -16,8 +16,8 @@ class MyFaceDetector @Inject constructor() {
     private val detector: com.google.mlkit.vision.face.FaceDetector by lazy {
         FaceDetection.getClient(
             FaceDetectorOptions.Builder()
-                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
-                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
                 .setMinFaceSize(2f)
                 .enableTracking()
                 .build()

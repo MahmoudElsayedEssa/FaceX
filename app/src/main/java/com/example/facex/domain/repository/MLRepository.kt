@@ -18,5 +18,5 @@ interface FaceDetector {
 }
 
 interface FaceRecognizer {
-    suspend fun getFaceEmbedding(faceBitmap: Bitmap, boundingBox: Rect): Embedding
+    suspend fun getFaceEmbedding(faceBitmap: Bitmap): Embedding
 }

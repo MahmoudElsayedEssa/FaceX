@@ -19,7 +19,7 @@ class MyFaceRecognizer @Inject constructor(
     }
     suspend fun calculateEmbeddingFloatArray(faceBitmap: Bitmap): Embedding =
         withContext(Dispatchers.Default) {
-            val byteBuffer = FaceNetBitmapHandler.convertBitmapToByteBuffer(faceBitmap)
+            val byteBuffer = FaceNetBitmapHandler.convertBitmapToTensorImage(faceBitmap).buffer
             val faceOutputArray = Array(1) { FloatArray(EMBEDDING_SIZE) }
             tfliteModelHandler.runModel(byteBuffer, faceOutputArray)
             faceOutputArray[0]

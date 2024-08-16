@@ -44,10 +44,10 @@ fun FacesOverlay(
     Box(modifier = modifier.fillMaxSize()) {
         Canvas(modifier = Modifier.fillMaxSize()) {
 
-            val imageSize = Size(cameraPreviewSize.width.toFloat(), cameraPreviewSize.height.toFloat())
+            val imageSize =
+                Size(cameraPreviewSize.width.toFloat(), cameraPreviewSize.height.toFloat())
             val viewSize = Size(size.width, size.height)
 
-            Log.d("NONI", "FacesOverlay: imageSize: $imageSize , viewSize$viewSize")
             trackedFaces.forEach { face ->
                 val adjustedBox = adjustBoundingBoxForView(
                     face.boundingBox,
@@ -89,14 +89,26 @@ private fun DrawScope.drawTrackedFace(faceState: FaceState, adjustedBox: Rect, c
 
     // Draw name if recognized
     if (faceState.isRecognized) {
-        val name = faceState.displayName
-        var textSize = 20f
-        val textWidth = name.length * textSize // Approximate width
-        val textHeight = textSize
+        val name = "${faceState.displayName} (${faceState.confidence.format(2)})"
+        val textSize = 50f  // Increase this value to make the text bigger
+        val paint = android.graphics.Paint().apply {
+            color = Color.White  // Use Android's Color class for text color
+            this.textSize = textSize
+            isAntiAlias = true  // Smooth edges for better readability
+            strokeWidth = 4f  // Optionally add a stroke width to make the text stand out more
+            style = android.graphics.Paint.Style.FILL  // Define the style (e.g., FILL, STROKE)
+            typeface =
+                android.graphics.Typeface.DEFAULT_BOLD  // Set the typeface to bold if desired
+            textAlign = android.graphics.Paint.Align.LEFT
+        }
+
+        // Measure the width of the text
+        val textWidth = paint.measureText(name)
+        val textHeight = paint.fontMetrics.bottom - paint.fontMetrics.top
 
         // Draw name background
         drawRoundRect(
-            color = Color.Black,
+            color = Color.Transparent,
             topLeft = Offset(adjustedBox.left, adjustedBox.top),
             size = Size(
                 textWidth + BOUNDING_RECT_TEXT_PADDING,
@@ -107,13 +119,10 @@ private fun DrawScope.drawTrackedFace(faceState: FaceState, adjustedBox: Rect, c
 
         // Draw name
         drawContext.canvas.nativeCanvas.drawText(
-            "${name} (${faceState.confidence.format(2)})",
-            adjustedBox.left,
-            adjustedBox.top + textHeight,
-            android.graphics.Paint().apply {
-                color = Color.White
-                textSize = 100f
-            }
+            name,
+            adjustedBox.left + BOUNDING_RECT_TEXT_PADDING / 2,  // Center text horizontally within the padding
+            adjustedBox.top + textHeight,  // Draw the text inside the background
+            paint
         )
     }
 }

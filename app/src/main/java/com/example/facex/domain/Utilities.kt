@@ -1,6 +1,5 @@
 package com.example.facex.domain
 
-import android.media.FaceDetector.Face.CONFIDENCE_THRESHOLD
 import android.util.Log
 import com.example.facex.domain.entities.DetectedFace
 import com.example.facex.domain.entities.Embedding
@@ -8,35 +7,34 @@ import com.example.facex.domain.entities.Person
 import com.example.facex.domain.entities.RecognizedPerson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.nio.ByteBuffer
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-
-fun cosineSimilarity(embeddingA: ByteBuffer, embeddingB: ByteBuffer): Double {
-    require(embeddingA.capacity() == embeddingB.capacity()) { "Buffers must have the same dimensions" }
-
-    var dotProduct = 0.0
-    var normA = 0.0
-    var normB = 0.0
-
-    embeddingA.rewind()
-    embeddingB.rewind()
-
-    while (embeddingA.hasRemaining() && embeddingB.hasRemaining()) {
-        val valueA = embeddingA.float
-        val valueB = embeddingB.float
-
-        dotProduct += valueA * valueB
-        normA += valueA * valueA
-        normB += valueB * valueB
-    }
-
-    embeddingA.rewind()
-    embeddingB.rewind()
-
-    return dotProduct / (sqrt(normA) * sqrt(normB))
-}
+const val RECOGNITION_CONFIDENCE_THRESHOLD = 0.6f
+//fun cosineSimilarity(embeddingA: ByteBuffer, embeddingB: ByteBuffer): Double {
+//    require(embeddingA.capacity() == embeddingB.capacity()) { "Buffers must have the same dimensions" }
+//
+//    var dotProduct = 0.0
+//    var normA = 0.0
+//    var normB = 0.0
+//
+//    embeddingA.rewind()
+//    embeddingB.rewind()
+//
+//    while (embeddingA.hasRemaining() && embeddingB.hasRemaining()) {
+//        val valueA = embeddingA.float
+//        val valueB = embeddingB.float
+//
+//        dotProduct += valueA * valueB
+//        normA += valueA * valueA
+//        normB += valueB * valueB
+//    }
+//
+//    embeddingA.rewind()
+//    embeddingB.rewind()
+//
+//    return dotProduct / (sqrt(normA) * sqrt(normB))
+//}
 
 fun cosineSimilarity(vectorA: FloatArray, vectorB: FloatArray): Double {
     require(vectorA.size == vectorB.size) { "Vectors must have the same dimensions" }
@@ -59,7 +57,7 @@ suspend fun List<Person>.findRecognizedPerson(detectedFace: DetectedFace,embeddi
          this@findRecognizedPerson.mapNotNull { person ->
              embedding.let {
                  cosineSimilarity(it, person.embedding).takeIf {
-                     it >= CONFIDENCE_THRESHOLD
+                     it >= RECOGNITION_CONFIDENCE_THRESHOLD
                  }?.let { confidence ->
                      RecognizedPerson(person, confidence, detectedFace).also {
                          Log.d("findRecognizedPerson", "findRecognizedPerson: confidence: $confidence")

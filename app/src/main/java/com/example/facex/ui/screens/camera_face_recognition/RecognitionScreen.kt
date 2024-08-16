@@ -58,9 +58,7 @@ fun CameraRecognitionScreen(
             }
 
             if (showDialog) {
-                     Log.d("NONI", "CameraRecognitionScreen: ")
                  state.trackedFaces.values.firstOrNull()?.let { detectedFace ->
-                     Log.d("NONI", "CameraRecognitionScreen:detectedFace$detectedFace ")
                      DialogWithImage(
                          onDismissRequest = {
                              showDialog = false

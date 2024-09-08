@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -45,55 +44,87 @@ class RecognitionViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun onAnalysis(frameData: FrameData) {
+        analysisJob?.cancel() // Cancel previous job if it's still running
         analysisJob = viewModelScope.launch {
-            withTimeoutOrNull(1000) {
-                try {
-                    detectFacesUseCase(frameData)
-                        .flatMapLatest { detectedFaces ->
-                            updateDetectedFaces(detectedFaces)
-                            flowOf(recognizeFacesUseCase(detectedFaces))
-                        }.collect { recognizedPersons ->
-                            updateRecognizedFaces(recognizedPersons)
-                        }
-                } catch (e: Exception) {
-                    handleException(e)
-                }
-            } ?: handleTimeout()
+            try {
+                detectFacesUseCase(frameData)
+                    .flatMapLatest { detectedFaces ->
+                        updateDetectedFaces(detectedFaces)
+                        flowOf(recognizeFacesUseCase(detectedFaces))
+                    }
+                    .collect { recognizedPersons ->
+                        updateRecognizedFaces(recognizedPersons)
+                    }
+            } catch (e: Exception) {
+                handleException(e)
+            }
         }
     }
 
     private fun updateDetectedFaces(detectedFaces: List<DetectedFace?>) {
         _stateFlow.update { currentState ->
-            val newTrackedFaces = detectedFaces.filterNotNull().associate { face ->
-                val id = face.trackedId ?: face.hashCode()
-                id to TrackedFace(
-                    id = id,
-                    boundingBox = face.boundingBox,
-                    bitmap = face.bitmap
-                )
-            }
-            currentState.copy(trackedFaces = newTrackedFaces)
+            currentState.copy(
+                trackedFaces = detectedFaces.filterNotNull().associate { face ->
+                    val id = face.trackedId ?: face.hashCode()
+                    id to TrackedFace(id, face.boundingBox, face.bitmap)
+                }
+            )
         }
     }
 
     private fun updateRecognizedFaces(recognizedPersons: List<RecognizedPerson>) {
         _stateFlow.update { currentState ->
-            val updatedTrackedFaces = currentState.trackedFaces.toMutableMap()
-            recognizedPersons.forEach { recognizedPerson ->
-                val id = recognizedPerson.detectedFace.trackedId
-                    ?: recognizedPerson.detectedFace.hashCode()
-                updatedTrackedFaces[id] =
-                    updatedTrackedFaces[id]?.copy(recognizedPerson = recognizedPerson)
-                        ?: TrackedFace(
-                            id = id,
-                            boundingBox = recognizedPerson.detectedFace.boundingBox,
-                            bitmap = recognizedPerson.detectedFace.bitmap,
-                            recognizedPerson = recognizedPerson
-                        )
-            }
-            currentState.copy(trackedFaces = updatedTrackedFaces)
+            currentState.copy(
+                trackedFaces = currentState.trackedFaces.toMutableMap().apply {
+                    recognizedPersons.forEach { recognizedPerson ->
+                        val id = recognizedPerson.detectedFace.trackedId
+                            ?: recognizedPerson.detectedFace.hashCode()
+                        this[id] = this[id]?.copy(recognizedPerson = recognizedPerson)
+                            ?: TrackedFace(
+                                id = id,
+                                boundingBox = recognizedPerson.detectedFace.boundingBox,
+                                bitmap = recognizedPerson.detectedFace.bitmap,
+                                recognizedPerson = recognizedPerson
+                            )
+                    }
+                }
+            )
         }
     }
+
+//    private fun updateDetectedFaces(detectedFaces: List<DetectedFace?>) {
+//        _stateFlow.update { currentState ->
+//            val newTrackedFaces = detectedFaces.filterNotNull().associate { face ->
+//                val id = face.trackedId ?: face.hashCode()
+//                id to TrackedFace(
+//                    id = id,
+//                    boundingBox = face.boundingBox,
+//                    bitmap = face.bitmap
+//                )
+//            }
+//            currentState.copy(trackedFaces = newTrackedFaces)
+//        }
+//    }
+
+//    private fun updateRecognizedFaces(recognizedPersons: List<RecognizedPerson>) {
+//        _stateFlow.update { currentState ->
+//            val updatedTrackedFaces = currentState.trackedFaces.toMutableMap()
+//            recognizedPersons.forEach { recognizedPerson ->
+//                val id = recognizedPerson.detectedFace.trackedId
+//                    ?: recognizedPerson.detectedFace.hashCode()
+//                updatedTrackedFaces[id] =
+//                    updatedTrackedFaces[id]?.copy(recognizedPerson = recognizedPerson)
+//                        ?: TrackedFace(
+//                            id = id,
+//                            boundingBox = recognizedPerson.detectedFace.boundingBox,
+//                            bitmap = recognizedPerson.detectedFace.bitmap,
+//                            recognizedPerson = recognizedPerson
+//                        )
+//            }
+//            currentState.copy(trackedFaces = updatedTrackedFaces)
+//        }
+//    }
+
 
     private fun handleException(e: Exception) {
         when (e) {
@@ -103,11 +134,6 @@ class RecognitionViewModel @Inject constructor(
                 clearState()
             }
         }
-    }
-
-    private fun handleTimeout() {
-        Log.w(TAG, "Frame processing timed out")
-        clearState()
     }
 
     private fun clearState() {

@@ -1,7 +1,6 @@
 package com.example.facex
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,13 +15,11 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
-import org.opencv.android.OpenCVLoader
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initOpenCV()
         enableEdgeToEdge()
         setContent {
             FaceXTheme {
@@ -33,13 +30,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun initOpenCV() {
-        if (OpenCVLoader.initDebug()) {
-            Log.d(TAG, "initOpenCV: OpenCV loaded successfully")
-        } else {
-            Log.d(TAG, "initOpenCV: OpenCV loading failure")
-        }
-    }
     companion object {
         private const val TAG = "MainActivity"
     }

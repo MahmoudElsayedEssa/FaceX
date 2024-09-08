@@ -17,13 +17,17 @@ class MyFaceRecognizer @Inject constructor(
     init {
         tfliteModelHandler.loadModel(MODEL_NAME)
     }
+
     suspend fun calculateEmbeddingFloatArray(faceBitmap: Bitmap): Embedding =
         withContext(Dispatchers.Default) {
-            val byteBuffer = FaceNetBitmapHandler.convertBitmapToTensorImage(faceBitmap).buffer
+//            val byteBuffer = FaceNetBitmapHandler.convertBitmapToTensorImage(faceBitmap).buffer
+            val byteBuffer = FaceNetBitmapHandler.convertBitmapToByteBuffer(faceBitmap)
+
             val faceOutputArray = Array(1) { FloatArray(EMBEDDING_SIZE) }
             tfliteModelHandler.runModel(byteBuffer, faceOutputArray)
             faceOutputArray[0]
         }
+
     private fun calculateEmbeddingByteBuffer(imageBitmap: Bitmap): ByteBuffer {
         val byteBuffer = FaceNetBitmapHandler.convertBitmapToTensorImage(imageBitmap)
         val embeddingsByteBuffer =

@@ -1,14 +1,12 @@
 package com.example.facex.data
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Matrix
+import android.graphics.Paint
 import android.graphics.Rect
-import android.util.Log
-import org.opencv.android.Utils
-import org.opencv.core.Mat
-import org.opencv.imgproc.Imgproc
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 fun Bitmap.cropToBoundingBox(
     boundingBox: Rect,
@@ -45,14 +43,24 @@ fun Bitmap.cropToBoundingBox(
 
 
 fun Bitmap.toGrayScale(): Bitmap {
-    val mat = Mat()
-    Utils.bitmapToMat(this, mat)
+    // Create a mutable Bitmap to draw on
+    val grayscaleBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+
+    // Create a Canvas to draw onto the new Bitmap
+    val canvas = Canvas(grayscaleBitmap)
+
+    // Create a Paint object with a ColorMatrix to transform the image to grayscale
+    val paint = Paint()
+    val colorMatrix = ColorMatrix()
+    colorMatrix.setSaturation(0f) // 0 saturation for grayscale
+    val filter = ColorMatrixColorFilter(colorMatrix)
+    paint.colorFilter = filter
+
+    // Draw the original Bitmap onto the new one with the grayscale filter
+    canvas.drawBitmap(this, 0f, 0f, paint)
+
+    // Recycle the original bitmap to free up memory
     this.recycle()
 
-    Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGBA2GRAY)
-
-    val outputBitmap = Bitmap.createBitmap(mat.width(), mat.height(), Bitmap.Config.ARGB_8888)
-    Utils.matToBitmap(mat, outputBitmap)
-
-    return outputBitmap
+    return grayscaleBitmap
 }

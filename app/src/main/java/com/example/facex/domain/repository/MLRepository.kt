@@ -1,20 +1,24 @@
 package com.example.facex.domain.repository
 
 import android.graphics.Bitmap
-import android.graphics.Rect
-import com.example.facex.domain.entities.DetectedFace
 import com.example.facex.domain.entities.Embedding
 import com.google.mlkit.vision.face.Face
 
-interface MLRepository:FaceDetector, FaceRecognizer{
+interface MLRepository : FaceDetector, FaceRecognizer {
     fun stopRecognition()
 }
+
 interface FaceDetector {
-    fun detectFaces(
+    suspend   fun detectFaces(
         bitmap: Bitmap,
         rotationDegrees: Int,
         callback: (List<Face>) -> Unit
     )
+//    suspend fun detectFaces(
+//        bitmap: Bitmap,
+//        rotationDegrees: Int
+//    ): List<Face>
+
 }
 
 interface FaceRecognizer {

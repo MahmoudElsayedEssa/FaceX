@@ -1,7 +1,6 @@
 package com.example.facex.data.repository
 
 import android.graphics.Bitmap
-import android.graphics.Rect
 import com.example.facex.data.local.ml.MyFaceDetector
 import com.example.facex.data.local.ml.facerecognition.MyFaceRecognizer
 import com.example.facex.domain.entities.Embedding
@@ -13,13 +12,19 @@ class MLRepositoryImpl @Inject constructor(
     private val faceRecognizer: MyFaceRecognizer,
     private val faceDetector: MyFaceDetector,
 ) : MLRepository {
-    override fun detectFaces(
+    override suspend fun detectFaces(
         bitmap: Bitmap,
         rotationDegrees: Int,
         callback: (List<Face>) -> Unit
     ) {
         faceDetector.detectFaces(bitmap, rotationDegrees, callback)
     }
+//    override suspend fun detectFaces(
+//        bitmap: Bitmap,
+//        rotationDegrees: Int,
+//    ): List<Face> {
+//        return faceDetector.detectFaces(bitmap, rotationDegrees)
+//    }
 
 
     override suspend fun getFaceEmbedding(faceBitmap: Bitmap): Embedding {

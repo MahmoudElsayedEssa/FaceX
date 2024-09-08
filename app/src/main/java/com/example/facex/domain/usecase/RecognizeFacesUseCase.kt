@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.facex.di.DefaultDispatcher
 import com.example.facex.di.IoDispatcher
 import com.example.facex.domain.entities.DetectedFace
+import com.example.facex.domain.entities.Person
 import com.example.facex.domain.entities.RecognizedPerson
 import com.example.facex.domain.findRecognizedPerson
 import com.example.facex.domain.repository.MLRepository
@@ -15,10 +16,11 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import java.text.NumberFormat
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.system.measureNanoTime
-import kotlin.system.measureTimeMillis
 
 @Singleton
 class RecognizeFacesUseCase @Inject constructor(
@@ -27,27 +29,38 @@ class RecognizeFacesUseCase @Inject constructor(
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
-    suspend operator fun invoke(
-        detectedFaces: List<DetectedFace?>
-    ): List<RecognizedPerson> = withContext(defaultDispatcher) {
-        if (detectedFaces.isEmpty()) return@withContext emptyList()
-        val persons = withContext(ioDispatcher) { personRepository.getAllPersons().first() }
-        val recognizedPersons = mutableListOf<RecognizedPerson>()
-        val timeTaken = measureTimeMillis {
-            recognizedPersons.addAll(coroutineScope {
-                detectedFaces.map { face ->
-                    yield()
-                    async {
-                        if (face == null) return@async null
-                        val embedding =
-                            mlRepository.getFaceEmbedding(face.bitmap)
-                        persons.findRecognizedPerson(face, embedding)
-                    }
-                }.awaitAll().filterNotNull()
-            })
-        }
-        Log.d("MAMO", "Time taken to recognize faces: $timeTaken ms")
-        recognizedPersons
+    private var cachedPersons: List<Person> = emptyList()
+
+    private suspend fun refreshCache() = withContext(ioDispatcher) {
+        cachedPersons = personRepository.getAllPersons().first()
     }
+
+    suspend operator fun invoke(detectedFaces: List<DetectedFace?>): List<RecognizedPerson> =
+        withContext(defaultDispatcher) {
+            if (detectedFaces.isEmpty()) return@withContext emptyList()
+
+            if (cachedPersons.isEmpty()) {
+                refreshCache()
+            }
+
+            val recognizedPersons = mutableListOf<RecognizedPerson>()
+            val timeTaken = measureNanoTime {
+                recognizedPersons.addAll(coroutineScope {
+                    detectedFaces.map { face ->
+                        yield()
+                        async {
+                            if (face == null) return@async null
+                            val embedding = mlRepository.getFaceEmbedding(face.bitmap)
+                            cachedPersons.findRecognizedPerson(face, embedding)
+                        }
+                    }.awaitAll().filterNotNull()
+                })
+            }
+
+            val formatter = NumberFormat.getNumberInstance(Locale.US)
+            val formattedNanoTime = formatter.format(timeTaken)
+            Log.d("MAMO", "Time taken to recognize faces: $formattedNanoTime ns")
+            recognizedPersons
+        }
 }
 

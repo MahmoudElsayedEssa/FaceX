@@ -26,6 +26,7 @@ import kotlin.system.measureNanoTime
 class RecognizeFacesUseCase @Inject constructor(
     private val personRepository: PersonRepository,
     private val mlRepository: MLRepository,
+    private val performanceTracker: PerformanceTracker,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
@@ -56,10 +57,10 @@ class RecognizeFacesUseCase @Inject constructor(
                     }.awaitAll().filterNotNull()
                 })
             }
-
+            performanceTracker.updateMetric(PerformanceTracker.RECOGNITION_TIME, timeTaken)
             val formatter = NumberFormat.getNumberInstance(Locale.US)
-            val formattedNanoTime = formatter.format(timeTaken)
-            Log.d("MAMO", "Time taken to recognize faces: $formattedNanoTime ns")
+            Log.d("performanceTracker", "invoke:RECOGNITION_TIME:${formatter.format(timeTaken)} ")
+
             recognizedPersons
         }
 }

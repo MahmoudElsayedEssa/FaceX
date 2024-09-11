@@ -19,12 +19,12 @@ class MLRepositoryImpl @Inject constructor(
     ) {
         faceDetector.detectFaces(bitmap, rotationDegrees, callback)
     }
-//    override suspend fun detectFaces(
-//        bitmap: Bitmap,
-//        rotationDegrees: Int,
-//    ): List<Face> {
-//        return faceDetector.detectFaces(bitmap, rotationDegrees)
-//    }
+    override suspend fun detectFaces(
+        bitmap: Bitmap,
+        rotationDegrees: Int,
+    ): List<Face> {
+        return faceDetector.detectFacesSuspend(bitmap, rotationDegrees)
+    }
 
 
     override suspend fun getFaceEmbedding(faceBitmap: Bitmap): Embedding {

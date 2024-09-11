@@ -95,6 +95,8 @@ dependencies {
     implementation libs.tensorflow.lite.gpu.delegate.plugin
     implementation libs.tensorflow.lite.select.tf.ops
 
+    implementation libs.androidx.material
+
 
     //camera
     implementation(libs.androidx.camera.camera2)
@@ -109,6 +111,8 @@ dependencies {
     implementation(libs.hilt.android)
 
     implementation libs.androidx.runtime.livedata
+    implementation libs.androidx.media3.exoplayer
+    implementation libs.firebase.firestore.ktx
     ksp libs.hilt.compiler
     ksp libs.dagger.compiler
     ksp libs.androidx.hilt.compiler

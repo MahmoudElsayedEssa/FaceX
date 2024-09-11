@@ -14,10 +14,9 @@ interface FaceDetector {
         rotationDegrees: Int,
         callback: (List<Face>) -> Unit
     )
-//    suspend fun detectFaces(
-//        bitmap: Bitmap,
-//        rotationDegrees: Int
-//    ): List<Face>
+    suspend fun detectFaces(
+        bitmap: Bitmap, rotationDegrees: Int
+    ): List<Face>
 
 }
 

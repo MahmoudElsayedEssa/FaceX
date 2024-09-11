@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.facex.ui.TrackedFace
 import com.example.facex.ui.screens.camera_face_recognition.components.DialogWithImage
 
 @Composable
@@ -26,12 +27,17 @@ fun CameraRecognitionScreen(
     actions: RecognitionActions = RecognitionActions(),
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    val noFacesDetected = state.trackedFaces.values.isEmpty()
+    var tappedFace by remember { mutableStateOf<TrackedFace?>(null) }
 
     Box {
         ImageAnalysisPreview(
             state = state,
-            actions = actions
+            actions = actions,
+            onFaceTapped = { face ->
+                Log.d("NONI", "tapppping: ")
+                tappedFace = face
+                showDialog = true
+            }
         )
         Column(
             modifier = Modifier
@@ -40,38 +46,18 @@ fun CameraRecognitionScreen(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (noFacesDetected) {
-                Text(
-                    text = "No faces detected. Please position your face in front of the camera.",
-                    color = Color.Red,
-                    modifier = Modifier.padding(8.dp)
-                )
-            }
-            Button(
-                onClick = {
-                    showDialog = true
-                },
-                enabled = !noFacesDetected,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text(text = "Capture Face")
-            }
 
             if (showDialog) {
-                 state.trackedFaces.values.firstOrNull()?.let { detectedFace ->
-                     DialogWithImage(
-                         onDismissRequest = {
-                             showDialog = false
-                         },
-                         onConfirmation = { name ->
-                             actions.onCaptureFace(name,detectedFace.bitmap)
-                             showDialog = false
-                         },
-                         detectedFaceBitmap = detectedFace.bitmap
-                     )
-
-                 }
-
+                tappedFace?.let { detectedFace ->
+                    DialogWithImage(
+                        onDismissRequest = { showDialog = false },
+                        onConfirmation = { name ->
+                            actions.onCaptureFace(name, detectedFace.bitmap)
+                            showDialog = false
+                        },
+                        detectedFaceBitmap = detectedFace.bitmap
+                    )
+                }
             }
         }
     }

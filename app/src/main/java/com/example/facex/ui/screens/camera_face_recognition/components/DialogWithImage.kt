@@ -1,7 +1,6 @@
 package com.example.facex.ui.screens.camera_face_recognition.components
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,9 +30,6 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.facex.R
-import com.example.facex.domain.entities.DetectedFace
-import com.example.facex.domain.entities.Embedding
-import java.nio.ByteBuffer
 
 @Composable
 fun DialogWithImage(
@@ -52,7 +48,7 @@ fun DialogWithImage(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(375.dp)
+                .height(250.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
@@ -71,8 +67,10 @@ fun DialogWithImage(
                         .size(100.dp)
                 )
 
-
-                OutlinedTextField(value = name, onValueChange = { name = it })
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                )
 
                 Row(
                     modifier = Modifier
@@ -81,7 +79,9 @@ fun DialogWithImage(
                 ) {
                     TextButton(
                         onClick = { onDismissRequest() },
-                        modifier = Modifier.padding(8.dp),
+                        modifier = Modifier
+
+                            .padding(8.dp),
                     ) {
                         Text("Dismiss")
                     }

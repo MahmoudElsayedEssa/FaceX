@@ -113,6 +113,7 @@ dependencies {
     implementation libs.androidx.runtime.livedata
     implementation libs.androidx.media3.exoplayer
     implementation libs.firebase.firestore.ktx
+    implementation libs.firebase.crashlytics.buildtools
     ksp libs.hilt.compiler
     ksp libs.dagger.compiler
     ksp libs.androidx.hilt.compiler

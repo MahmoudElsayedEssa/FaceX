@@ -8,6 +8,4 @@ class RegisterPersonUseCase @Inject constructor(private val personRepository: Pe
     suspend operator fun invoke(embedding: Embedding, name: String) {
         personRepository.savePerson(name = name, embedding = embedding)
     }
-
-
 }

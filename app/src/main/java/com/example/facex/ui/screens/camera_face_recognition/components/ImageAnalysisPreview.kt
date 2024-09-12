@@ -52,6 +52,7 @@ import com.example.facex.ui.screens.camera_face_recognition.components.CustomRes
 import com.example.facex.ui.screens.camera_face_recognition.components.FacesImageAnalyzer
 import com.example.facex.ui.screens.camera_face_recognition.components.FacesOverlay
 import com.example.facex.ui.screens.camera_face_recognition.components.combinedPointerInput
+import com.example.facex.ui.utils.formatTime
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -205,7 +206,7 @@ fun PerformanceMetricsDisplay(viewModel: RecognitionViewModel = hiltViewModel())
     ) {
         Text("Performance Metrics", style = MaterialTheme.typography.bodyLarge)
         performanceMetrics.metrics.forEach { (key, value) ->
-            Text("$key: $value")
+            Text("$key: ${value.formatTime()}")
         }
         Button(onClick = { viewModel.clearPerformanceMetrics() }) {
             Text("Clear Metrics")

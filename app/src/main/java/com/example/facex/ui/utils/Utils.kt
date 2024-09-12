@@ -2,23 +2,17 @@ package com.example.facex.ui.utils
 
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.RectF
-import android.graphics.YuvImage
-import android.media.ImageReader
 import android.util.Log
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageProxy
 import androidx.compose.ui.geometry.Size
-import androidx.media3.common.util.Util.toByteArray
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
+import com.example.facex.domain.entities.Person
+import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
+import kotlin.random.Random
 import androidx.compose.ui.geometry.Rect as ComposeRect
 
 fun adjustBoundingBoxForView(
@@ -228,8 +222,6 @@ fun adjustBoundingBoxForView3(
 }
 
 
-
-
 fun Bitmap.scale(scaleFactor: Float): Bitmap {
     val width = (this.width * scaleFactor).toInt()
     val height = (this.height * scaleFactor).toInt()
@@ -244,4 +236,25 @@ fun Rect.scale(scaleFactor: Float): Rect {
         (bottom * scaleFactor).toInt()
     )
 }
+
+
+fun Long.formatTime(): String {
+    val milliseconds = this / 1_000_000
+    val seconds = milliseconds / 1_000
+    val minutes = seconds / 60
+
+    return when {
+        minutes > 0 -> String.format(Locale.US, "%d min %d sec", minutes, seconds % 60)
+        seconds > 0 -> String.format(Locale.US, "%d sec %d ms", seconds, milliseconds % 1_000)
+        milliseconds > 0 -> String.format(
+            Locale.US,
+            "%d ms %d µs",
+            milliseconds,
+            (this % 1_000_000) / 1_000
+        )
+
+        else -> String.format(Locale.US, "%d ns", this)
+    }
+}
+
 

@@ -1,5 +1,6 @@
 package com.example.facex.data.local.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.facex.domain.entities.Embedding
@@ -10,7 +11,8 @@ data class PersonDTO(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     var name: String,
-    val embedding: FloatArray
+    @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val embedding: ByteArray
+
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

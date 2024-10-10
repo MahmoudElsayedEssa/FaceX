@@ -1,7 +1,5 @@
 package com.example.facex.domain.entities
 
-typealias Embedding = FloatArray
+import java.nio.ByteBuffer
 
-typealias RecognitionResult = Pair<List<DetectedFace>, List<RecognizedPerson>>
-
-
+typealias Embedding = ByteBuffer

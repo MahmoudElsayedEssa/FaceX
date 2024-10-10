@@ -2,32 +2,23 @@ import android.content.res.Configuration
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
-import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,21 +29,23 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.example.facex.domain.entities.PerformanceTracker
 import com.example.facex.ui.TrackedFace
 import com.example.facex.ui.components.CameraPreview
+import com.example.facex.ui.helpers.FacesImageAnalyzer
 import com.example.facex.ui.screens.camera_face_recognition.RecognitionActions
 import com.example.facex.ui.screens.camera_face_recognition.RecognitionState
 import com.example.facex.ui.screens.camera_face_recognition.RecognitionViewModel
-import com.example.facex.ui.screens.camera_face_recognition.components.CustomResolutionFilter
-import com.example.facex.ui.screens.camera_face_recognition.components.FacesImageAnalyzer
-import com.example.facex.ui.screens.camera_face_recognition.components.FacesOverlay
+import com.example.facex.ui.screens.camera_face_recognition.components.FaceGraphic
+import com.example.facex.ui.screens.camera_face_recognition.components.GraphicOverlay
+import com.example.facex.ui.screens.camera_face_recognition.components.PerformanceMetricsDisplay
 import com.example.facex.ui.screens.camera_face_recognition.components.combinedPointerInput
-import com.example.facex.ui.utils.formatTime
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,6 +56,9 @@ fun ImageAnalysisPreview(
     onFaceTapped: (TrackedFace) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val performanceTracker: PerformanceTracker =
+        hiltViewModel<RecognitionViewModel>().performanceTracker
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -77,15 +73,16 @@ fun ImageAnalysisPreview(
         FacesImageAnalyzer(
             lifecycleOwner.lifecycleScope,
             actions.onAnalysis,
-
-            )
+            performanceTracker
+        )
     }
-    val desiredSize = android.util.Size(1280, 720)
-    val analysisSize = Size(1280f, 720f)
+    val desiredSize = android.util.Size(480, 360)
+    val analysisSize = Size(480f, 360f)
     val strategy =
         ResolutionStrategy(desiredSize, ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)
     var aspectRatioStrategy =
-        AspectRatioStrategy(AspectRatio.RATIO_16_9, ResolutionStrategy.FALLBACK_RULE_NONE)
+        AspectRatioStrategy(AspectRatio.RATIO_4_3, AspectRatioStrategy.FALLBACK_RULE_NONE)
+
     val controller = remember {
         LifecycleCameraController(context).apply {
             setEnabledUseCases(CameraController.IMAGE_ANALYSIS)
@@ -93,21 +90,21 @@ fun ImageAnalysisPreview(
                 ContextCompat.getMainExecutor(context),
                 analyzer
             )
-            setImageAnalysisResolutionSelector(
-                ResolutionSelector.Builder()
-                    .setAspectRatioStrategy(aspectRatioStrategy)
-                    .setResolutionStrategy(strategy)
-                    .setResolutionFilter(CustomResolutionFilter())
-                    .build()
-            )
-            // Set up resolution selector for preview
-            setPreviewResolutionSelector(
-                ResolutionSelector.Builder()
-                    .setAspectRatioStrategy(aspectRatioStrategy)
-                    .setResolutionStrategy(strategy) // Custom resolution strategy
-                    .setResolutionFilter(CustomResolutionFilter()) // Custom resolution filter
-                    .build()
-            )
+//            setImageAnalysisResolutionSelector(
+//                ResolutionSelector.Builder()
+//                    .setAspectRatioStrategy(aspectRatioStrategy)
+//                    .setResolutionStrategy(strategy)
+//                    .setResolutionFilter(CustomResolutionFilter())
+//                    .build()
+//            )
+//            // Set up resolution selector for preview
+//            setPreviewResolutionSelector(
+//                ResolutionSelector.Builder()
+//                    .setAspectRatioStrategy(aspectRatioStrategy)
+//                    .setResolutionStrategy(strategy) // Custom resolution strategy
+//                    .setResolutionFilter(CustomResolutionFilter()) // Custom resolution filter
+//                    .build()
+//            )
             cameraSelector = cameraSelector
         }
     }
@@ -133,12 +130,12 @@ fun ImageAnalysisPreview(
             modifier = Modifier
                 .fillMaxSize()
                 .combinedPointerInput(
-                    trackedFaces = state.trackedFaces.values.toList(),
+                    trackedFaces = state.trackedFaces.toList(),
                     analysisSize = analysisSize,
                     previewSize = previewSize,
                     isLandscape = isLandscape,
                     isFrontCamera = isFrontCamera,
-                    onFaceTapped = onFaceTapped,
+//                    onFaceTapped = onFaceTapped,
                     zoom = zoomState,
                     previewView = previewView,
                     onZoomChange = { newZoom ->
@@ -153,22 +150,26 @@ fun ImageAnalysisPreview(
             CameraPreview(
                 controller = controller,
                 modifier = Modifier
-                    .width(1280.dp)
-                    .height(720.dp),
+//                    .width(1280.dp)
+//                    .height(720.dp)
+                    .fillMaxSize(),
                 onUpdatePreviewView = { size, previewVieww ->
                     previewSize = Size(size.width, size.height)
                     previewView = previewVieww
                 }
             )
 
-            FacesOverlay(
-                trackedFaces = state.trackedFaces.values.toList(),
-                cameraSelector = cameraSelector,
-                analysisSize = analysisSize,
-                previewSize = previewSize,
-                onFaceTapped = onFaceTapped,
-                modifier = Modifier.fillMaxSize()
-            )
+//            FacesOverlay(
+//                trackedFaces = state.trackedFaces.values.toList(),
+//                cameraSelector = cameraSelector,
+//                analysisSize = analysisSize,
+//                previewSize = previewSize,
+//                onFaceTapped = onFaceTapped,
+//                modifier = Modifier.fillMaxSize()
+//            )
+            val isImageFlipped = isFrontCamera
+
+            GraphicOverlayView(state.trackedFaces.toList(), isImageFlipped, onFaceTapped)
 
             IconButton(
                 onClick = {
@@ -195,21 +196,39 @@ fun BottomSheetContent(onDismiss: () -> Unit) {
     PerformanceMetricsDisplay()
 }
 
-@Composable
-fun PerformanceMetricsDisplay(viewModel: RecognitionViewModel = hiltViewModel()) {
-    val performanceMetrics by viewModel.performanceMetrics.collectAsState()
 
-    Column(
+@Composable
+fun GraphicOverlayView(
+    trackedFaces: List<TrackedFace>,
+    isImageFlipped: Boolean,
+    onFaceTapped: (TrackedFace) -> Unit
+) {
+    AndroidView(
+        factory = { context ->
+            GraphicOverlay(context, null).apply {
+                // Add face graphics when the view is created
+                setImageSourceInfo(480, 360, isImageFlipped)
+                setOnFaceTappedListener(onFaceTapped)
+
+                trackedFaces.forEach { trackedFace ->
+                    add(
+                        FaceGraphic(this, trackedFace)
+                    )
+                }
+            }
+        },
+        update = { overlay ->
+            overlay.clear()
+            overlay.setImageSourceInfo(480, 360, isImageFlipped)
+
+            trackedFaces.forEach { trackedFace ->
+                overlay.add(
+                    FaceGraphic(overlay, trackedFace)
+                )
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(32.dp)
-    ) {
-        Text("Performance Metrics", style = MaterialTheme.typography.bodyLarge)
-        performanceMetrics.metrics.forEach { (key, value) ->
-            Text("$key: ${value.formatTime()}")
-        }
-        Button(onClick = { viewModel.clearPerformanceMetrics() }) {
-            Text("Clear Metrics")
-        }
-    }
+    )
+
 }

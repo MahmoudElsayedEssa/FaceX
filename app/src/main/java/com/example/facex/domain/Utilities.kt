@@ -106,48 +106,48 @@ fun cosineSimilarityCombined(
 //}
 
 
-suspend fun List<Person>.findRecognizedPerson(
-    detectedFace: DetectedFace,
-    embedding: Embedding
-): RecognizedPerson? {
-    val normA = sqrt(embedding.sumOf { it.toDouble().pow(2.0) })
-    val threshold = RECOGNITION_CONFIDENCE_THRESHOLD
-    val bestMatch = AtomicReference<RecognizedPerson?>(null)
-
-    return withContext(Dispatchers.Default) {
-        val jobs = this@findRecognizedPerson.chunked(100).map { chunk ->
-            launch {
-                var localBestMatch: RecognizedPerson? = null
-                for (person in chunk) {
-                    val similarity = cosineSimilarityCombined(
-                        embedding,
-                        person.embedding,
-                        normA,
-                        person.norm,
-                        threshold
-                    )
-                    if (similarity >= threshold) {
-                        val recognizedPerson = RecognizedPerson(person, similarity, detectedFace)
-                        if (localBestMatch == null || similarity > localBestMatch.confidence) {
-                            localBestMatch = recognizedPerson
-                        }
-                    }
-                }
-                localBestMatch?.let { newMatch ->
-                    while (true) {
-                        val currentBest = bestMatch.get()
-                        if (currentBest == null || newMatch.confidence > currentBest.confidence) {
-                            if (bestMatch.compareAndSet(currentBest, newMatch)) break
-                        } else {
-                            break
-                        }
-                    }
-                }
-            }
-        }
-        jobs.joinAll()
-        bestMatch.get()
-    }
-}
+//suspend fun List<Person>.findRecognizedPerson(
+//    detectedFace: DetectedFace,
+//    embedding: Embedding
+//): RecognizedPerson? {
+//    val normA = sqrt(embedding.sumOf { it.toDouble().pow(2.0) })
+//    val threshold = RECOGNITION_CONFIDENCE_THRESHOLD
+//    val bestMatch = AtomicReference<RecognizedPerson?>(null)
+//
+//    return withContext(Dispatchers.Default) {
+//        val jobs = this@findRecognizedPerson.chunked(100).map { chunk ->
+//            launch {
+//                var localBestMatch: RecognizedPerson? = null
+//                for (person in chunk) {
+//                    val similarity = cosineSimilarityCombined(
+//                        embedding,
+//                        person.embedding,
+//                        normA,
+//                        person.norm,
+//                        threshold
+//                    )
+//                    if (similarity >= threshold) {
+//                        val recognizedPerson = RecognizedPerson(person, similarity, detectedFace)
+//                        if (localBestMatch == null || similarity > localBestMatch.confidence) {
+//                            localBestMatch = recognizedPerson
+//                        }
+//                    }
+//                }
+//                localBestMatch?.let { newMatch ->
+//                    while (true) {
+//                        val currentBest = bestMatch.get()
+//                        if (currentBest == null || newMatch.confidence > currentBest.confidence) {
+//                            if (bestMatch.compareAndSet(currentBest, newMatch)) break
+//                        } else {
+//                            break
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        jobs.joinAll()
+//        bestMatch.get()
+//    }
+//}
 
 

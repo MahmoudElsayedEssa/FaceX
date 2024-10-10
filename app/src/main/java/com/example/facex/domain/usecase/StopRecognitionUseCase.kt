@@ -6,6 +6,6 @@ import javax.inject.Inject
 class StopRecognitionUseCase @Inject constructor(private val mlRepository: MLRepository) {
 
     operator fun invoke(){
-       mlRepository.stopRecognition()
+       mlRepository.close()
     }
 }

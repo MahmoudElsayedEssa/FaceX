@@ -13,6 +13,10 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.microseconds
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import androidx.compose.ui.geometry.Rect as ComposeRect
 
 fun adjustBoundingBoxForView(
@@ -258,3 +262,11 @@ fun Long.formatTime(): String {
 }
 
 
+fun Duration.formatDuration(): String {
+    return when {
+        this < 1.microseconds -> "${inWholeMicroseconds}ns"
+        this < 1.milliseconds -> "${inWholeMicroseconds}µs"
+        this < 1.seconds -> "${inWholeMilliseconds}ms"
+        else -> this.toString()
+    }
+}

@@ -1,25 +1,10 @@
 package com.example.facex.domain.repository
 
-import android.graphics.Bitmap
-import com.example.facex.domain.entities.Embedding
-import com.google.mlkit.vision.face.Face
+import com.example.facex.data.local.ml.entity.SimpleFace
+import com.example.facex.domain.entities.ImageInput
+import java.nio.ByteBuffer
 
-interface MLRepository : FaceDetector, FaceRecognizer {
-    fun stopRecognition()
-}
-
-interface FaceDetector {
-    suspend   fun detectFaces(
-        bitmap: Bitmap,
-        rotationDegrees: Int,
-        callback: (List<Face>) -> Unit
-    )
-    suspend fun detectFaces(
-        bitmap: Bitmap, rotationDegrees: Int
-    ): List<Face>
-
-}
-
-interface FaceRecognizer {
-    suspend fun getFaceEmbedding(faceBitmap: Bitmap): Embedding
+interface MLRepository : AutoCloseable {
+    suspend fun detectFaces(image: ImageInput, rotationDegrees: Int): List<SimpleFace>
+    suspend fun generateEmbedding(face: ImageInput): ByteBuffer
 }

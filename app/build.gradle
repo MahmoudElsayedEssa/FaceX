@@ -114,6 +114,7 @@ dependencies {
     implementation libs.androidx.media3.exoplayer
     implementation libs.firebase.firestore.ktx
     implementation libs.firebase.crashlytics.buildtools
+    implementation libs.core
     ksp libs.hilt.compiler
     ksp libs.dagger.compiler
     ksp libs.androidx.hilt.compiler
@@ -143,6 +144,8 @@ dependencies {
     //concurrent
     implementation(libs.androidx.concurrent.futures)
     implementation(libs.androidx.concurrent.futures.ktx)
+
+    implementation(libs.opencv.contrib)
 
 
     testImplementation libs.junit

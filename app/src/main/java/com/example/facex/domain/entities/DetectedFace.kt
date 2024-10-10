@@ -1,10 +1,10 @@
 package com.example.facex.domain.entities
 
-import android.graphics.Bitmap
 import android.graphics.Rect
+import java.nio.ByteBuffer
 
 data class DetectedFace(
     val boundingBox: Rect,
     val trackedId: Int?,
-    val bitmap: Bitmap,
+    val imageByteBuffer: ByteBuffer,
 )

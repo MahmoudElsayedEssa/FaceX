@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
 
 data class RecognizedPerson(
     val person: Person,
-    val confidence: Double,
+    val confidence: Float,
     val detectedFace: DetectedFace
 )
 

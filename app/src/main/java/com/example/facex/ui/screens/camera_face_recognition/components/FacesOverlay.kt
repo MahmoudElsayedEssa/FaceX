@@ -108,7 +108,7 @@ fun Modifier.combinedPointerInput(
     previewSize: Size,
     isLandscape: Boolean,
     isFrontCamera: Boolean,
-    onFaceTapped: (TrackedFace) -> Unit,
+//    onFaceTapped: (TrackedFace) -> Unit,
     zoom: LiveData<ZoomState>,
     onZoomChange: (Float) -> Unit,
     previewView: PreviewView,
@@ -141,7 +141,7 @@ fun Modifier.combinedPointerInput(
                         isFrontMode = isFrontCamera
                     )
                     if (adjustedBox.contains(tap.position) && !face.isRecognized) {
-                        onFaceTapped(face)
+//                        onFaceTapped(face)
                         // Consume the event to prevent the camera preview from receiving it
                         return@awaitEachGesture
                     }

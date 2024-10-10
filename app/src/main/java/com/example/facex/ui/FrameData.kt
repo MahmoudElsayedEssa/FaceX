@@ -1,9 +1,9 @@
 package com.example.facex.ui
 
-import android.graphics.Bitmap
+import com.example.facex.domain.entities.ImageInput
 
 data class FrameData(
     val id: Long,
-    val bitmap: Bitmap,
-    val rotationDegrees: Int
+    val rotationDegrees: Int,
+    val imageInput: ImageInput
 )

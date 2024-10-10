@@ -3,6 +3,7 @@ package com.example.facex.data.repository
 import com.example.facex.data.local.db.PersonDTO
 import com.example.facex.data.local.db.PersonDao
 import com.example.facex.data.repository.mappers.toEntity
+import com.example.facex.data.toByteArray
 import com.example.facex.domain.entities.Embedding
 import com.example.facex.domain.entities.Person
 import com.example.facex.domain.repository.PersonRepository
@@ -17,7 +18,6 @@ class PersonRepositoryImpl @Inject constructor(private val personDao: PersonDao)
 
 
     override suspend fun savePerson(name: String, embedding: Embedding) {
-
-        personDao.insert(PersonDTO(name = name, embedding = embedding))
+        personDao.insert(PersonDTO(name = name, embedding = embedding.toByteArray()))
     }
 }

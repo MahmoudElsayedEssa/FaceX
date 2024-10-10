@@ -1,38 +1,28 @@
 package com.example.facex.data.repository
 
-import android.graphics.Bitmap
-import com.example.facex.data.local.ml.MyFaceDetector
-import com.example.facex.data.local.ml.facerecognition.MyFaceRecognizer
-import com.example.facex.domain.entities.Embedding
+import com.example.facex.data.local.ml.MLManager
+import com.example.facex.data.local.ml.entity.SimpleFace
+import com.example.facex.domain.entities.ImageInput
 import com.example.facex.domain.repository.MLRepository
-import com.google.mlkit.vision.face.Face
+import java.nio.ByteBuffer
 import javax.inject.Inject
 
 class MLRepositoryImpl @Inject constructor(
-    private val faceRecognizer: MyFaceRecognizer,
-    private val faceDetector: MyFaceDetector,
+    private val mlManager: MLManager
 ) : MLRepository {
+
     override suspend fun detectFaces(
-        bitmap: Bitmap,
-        rotationDegrees: Int,
-        callback: (List<Face>) -> Unit
-    ) {
-        faceDetector.detectFaces(bitmap, rotationDegrees, callback)
-    }
-    override suspend fun detectFaces(
-        bitmap: Bitmap,
-        rotationDegrees: Int,
-    ): List<Face> {
-        return faceDetector.detectFacesSuspend(bitmap, rotationDegrees)
+        image: ImageInput,
+        rotationDegrees: Int
+    ): List<SimpleFace> {
+        return mlManager.detectFaces(image, rotationDegrees).getOrThrow()
     }
 
-
-    override suspend fun getFaceEmbedding(faceBitmap: Bitmap): Embedding {
-        return faceRecognizer.calculateEmbeddingFloatArray(faceBitmap)
+    override suspend fun generateEmbedding(face: ImageInput): ByteBuffer {
+        return mlManager.generateEmbedding(face).getOrThrow()
     }
 
-    override fun stopRecognition() {
-        faceRecognizer.close()
-        faceDetector.close()
+    override fun close() {
+        mlManager.close()
     }
 }

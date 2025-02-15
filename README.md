@@ -66,9 +66,9 @@ https://github.com/user-attachments/assets/dd1ee8fc-962c-4d3f-b97d-a3d8ab169ace
 ## 🛠 Tech Stack  
 - **Languages:** Kotlin  
 - **UI:** Jetpack Compose  
-- **Machine Learning:** TensorFlow Lite (LiteRT), OpenCV, MediaPipe, ML Kit  
+- **Machine Learning Integration with Android:** TensorFlow Lite (LiteRT), OpenCV, MediaPipe, ML Kit  
 - **Architecture:** Clean Architecture, Multi-Module Design  
 - **Concurrency:** Coroutines, Flow  
-- **Networking:** Retrofit, OkHttp  
+
 
 

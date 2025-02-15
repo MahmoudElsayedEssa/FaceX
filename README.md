@@ -67,7 +67,7 @@ https://github.com/user-attachments/assets/dd1ee8fc-962c-4d3f-b97d-a3d8ab169ace
 - **Languages:** Kotlin  
 - **UI:** Jetpack Compose  
 - **Machine Learning Integration with Android:** TensorFlow Lite (LiteRT), OpenCV, MediaPipe, ML Kit  
-- **Architecture:** Clean Architecture, Multi-Module Design  
+- **Architecture:** Clean Architecture,MVVM  
 - **Concurrency:** Coroutines, Flow  
 
 

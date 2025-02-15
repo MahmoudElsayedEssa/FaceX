@@ -11,10 +11,12 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeGesturesPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -29,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -44,6 +45,7 @@ import com.example.facex.ui.screens.camera_face_recognition.components.FacesOver
 import com.example.facex.ui.screens.camera_face_recognition.components.bottomsheets.ModelControlBottomSheet
 import com.example.facex.ui.screens.camera_face_recognition.components.bottomsheets.PerformanceBottomSheet
 import com.example.facex.ui.screens.camera_face_recognition.components.fabs.ExpandableFabGroup
+import com.example.facex.ui.utils.toBitmap
 import kotlinx.coroutines.launch
 
 
@@ -110,7 +112,6 @@ fun CameraRecognitionScreen(
 
                     actions.onTapFace(face)
                 })
-
 
             if (cameraState.isFlipped) {
 

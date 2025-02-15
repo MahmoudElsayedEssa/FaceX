@@ -73,16 +73,31 @@ class RecognitionViewModel @Inject constructor(
         }
     }
 
+    private fun startFrameProcessing(frameResult: Result<Frame>) {
+        viewModelScope.launch(Dispatchers.Default) {
+            frameResult.onSuccess { frame ->
+                performanceTracker.suspendTrack(TOTAL_TIME) {
+                    processFaces(frame)
+                }.onSuccess { faces ->
+                    updateState { copy(faces = faces.toUiFaces()) }
+                }.onFailure { error ->
+                    handleAnalysisError(error)
+                }
+            }.onFailure { error ->
+                handleAnalysisError(error)
+            }
+        }
+    }
+
     fun registerFace(frameWithFace: Frame, personName: String) {
         viewModelScope.launch(Dispatchers.Default) {
-            getEmbedding(
-                frameWithFace
-            ).onSuccess { faceEmbedding ->
-                personStorage.registerPerson(personName, faceEmbedding)
-                dismissDialog()
-            }.onFailure { registrationError ->
-                logger.logError("Registration failed for $personName", registrationError)
-            }
+            getEmbedding(frameWithFace)
+                .onSuccess { faceEmbedding ->
+                    personStorage.registerPerson(personName, faceEmbedding)
+                    dismissDialog()
+                }.onFailure { registrationError ->
+                    logger.logError("Registration failed for $personName", registrationError)
+                }
         }
     }
 
@@ -140,22 +155,6 @@ class RecognitionViewModel @Inject constructor(
     fun cleanup() {
         clearRecognitionState()
         performanceTracker.clear()
-    }
-
-    private fun startFrameProcessing(frameResult: Result<Frame>) {
-        viewModelScope.launch(Dispatchers.Default) {
-            frameResult.onSuccess { frame ->
-                performanceTracker.suspendTrack(TOTAL_TIME) {
-                    processFaces(frame)
-                }.onSuccess { faces ->
-                    updateState { copy(faces = faces.toUiFaces()) }
-                }.onFailure { error ->
-                    handleAnalysisError(error)
-                }
-            }.onFailure { error ->
-                handleAnalysisError(error)
-            }
-        }
     }
 
 

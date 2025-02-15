@@ -28,8 +28,8 @@ class DetectFacesUseCase @Inject constructor(
                     async {
                         val croppedFace = frame
                             .toGrayscale()
-                            .crop(face.boundingBox)
                             .alignRotation()
+                            .crop(face.boundingBox)
                         DetectedFace(croppedFace, face.boundingBox, face.trackingId)
                     }
                 }.awaitAll()
